@@ -1,4 +1,4 @@
-#include "ElroDecoder.h"
+#include "ElroProtocol.h"
 #include "WConstants.h"
 
 enum PulseDuration 
@@ -20,7 +20,7 @@ enum PulseDuration
 
 
 
-ElroDecoder::ElroDecoder(
+ElroProtocol::ElroProtocol(
 	void (*Bitstream)(volatile short int[]), 
 	void (*DeviceCommand)(unsigned short int &, bool &) ,
 	void (*debug)(const char *) )
@@ -32,7 +32,7 @@ ElroDecoder::ElroDecoder(
 	DecodedBitsBufferSize = 24;
 }
 
-void ElroDecoder::DecodeBitstream()
+void ElroProtocol::DecodeBitstream()
 {	if ((DecodedBitsBuffer[0]!=0) || (DecodedBitsBuffer[2]!=0) || (DecodedBitsBuffer[4]!=0) || (DecodedBitsBuffer[6]!=0) || 
 		(DecodedBitsBuffer[8]!=0) || (DecodedBitsBuffer[10]!=0) || (DecodedBitsBuffer[12]!=0) || (DecodedBitsBuffer[14]!=0) || 
 		(DecodedBitsBuffer[16]!=0) || (DecodedBitsBuffer[18]!=0) || (DecodedBitsBuffer[20]!=0) || (DecodedBitsBuffer[22]!=0) ) return;
@@ -45,7 +45,7 @@ void ElroDecoder::DecodeBitstream()
 	if (_DeviceCommand!=0) _DeviceCommand(device, command);
 }
 
-void ElroDecoder::DecodePulse(short int pulse, unsigned int duration)
+void ElroProtocol::DecodePulse(short int pulse, unsigned int duration)
 {
     int durationresult = quantizeduration( duration, DURATION_UNKNOWN, 
 					DURATION_SHORT , ShortPulseDuration_Min, ShortPulseDuration_Max, 

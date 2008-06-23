@@ -1,11 +1,11 @@
 #include <TerminatedProtocolBase.h>
-#ifndef ElroDecoder_h
-#define ElroDecoder_h
+#ifndef ElroProtocol_h
+#define ElroProtocol_h
 
-class ElroDecoder : public TerminatedProtocolBase{
+class ElroProtocol : public TerminatedProtocolBase{
 	public:
 		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
-		ElroDecoder(
+		ElroProtocol(
 			void (*Bitstream)(volatile short int[]), 
 			void (*DeviceCommand)(unsigned short int &, bool &),
 			void (*debug)(const char *) );
