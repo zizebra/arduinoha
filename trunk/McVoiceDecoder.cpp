@@ -19,6 +19,16 @@ enum PulseDuration
 	DURATION_TERMINATOR = 3
 };
 
+#define	ShortPulseDuration_Min 10
+#define	ShortPulseDuration_Max 35
+
+#define	LongPulseDuration_Min 50
+#define	LongPulseDuration_Max 80
+
+#define	TerminatorDuration_Min 640
+#define	TerminatorDuration_Max 720
+
+
 
 McVoiceDecoder::McVoiceDecoder(
 	void (*Bitstream)(volatile short int[]), 
@@ -31,17 +41,9 @@ McVoiceDecoder::McVoiceDecoder(
 	_DeviceBatteryEmpty = DeviceBatteryEmpty;
 	_debug = debug;
 
-	ShortPulseDuration_Min = 10;
-	ShortPulseDuration_Max = 35;
-
-	LongPulseDuration_Min = 50;
-	LongPulseDuration_Max = 80;
-
-	TerminatorDuration_Min = 640;
-	TerminatorDuration_Max = 720;
 
 	DecodedBitsBufferSize = 24;
-	}
+}
 
 void McVoiceDecoder::DecodeBitstream()
 {	if ((DecodedBitsBuffer[0]!=0) || (DecodedBitsBuffer[2]!=0) || (DecodedBitsBuffer[4]!=0) || (DecodedBitsBuffer[6]!=0) || (DecodedBitsBuffer[8]!=0) || 

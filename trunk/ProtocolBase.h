@@ -31,9 +31,6 @@ class ProtocolBase {
 					unsigned short quant5, unsigned int quant5_min, unsigned int quant5_max );
 		virtual void StoreDecodedBit(short int bit) = 0;
 		virtual void DecodeBitstream() = 0;
-		unsigned int ShortPulseDuration_Min, ShortPulseDuration_Max;
-		unsigned int LongPulseDuration_Min, LongPulseDuration_Max;
-		unsigned int TerminatorDuration_Min, TerminatorDuration_Max;
 		volatile short int *DecodedBitsBuffer;
 		unsigned int *EncodedBitsBuffer;
 		short int DecodedBitsBufferSize ;

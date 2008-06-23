@@ -1,51 +1,41 @@
-#include "ElroDecoder.h"
+#include "FranElecProtocol.h"
 #include "WConstants.h"
+
+// [  31]   89 [  84]   29 [  28]   88 [  87]   27 [  31]   88 [  28]   89 [  29]   91 [  84]   27 [  32]   87 [  29]   88 [  30]   88 [  29]   91 [  27]   89 [  29]   88 [  31]   87 [  30]   89 [  85]   32 [  82]   34 [  26]   88 [  30]   89 [  29]   88 [  30]   91 [  26]   92 [  26]   91 [  28]  925 
+
 
 enum PulseDuration 
 {
 	DURATION_UNKNOWN = 0 , 
-	DURATION_SHORT = 1, 
+	DURATION_SHORT = 1 , 
 	DURATION_LONG = 2, 
 	DURATION_TERMINATOR = 3
 };
 
-#define	ShortPulseDuration_Min 10
-#define	ShortPulseDuration_Max 30
+#define	ShortPulseDuration_Min 20
+#define	ShortPulseDuration_Max 37
 
-#define	LongPulseDuration_Min 50
-#define	LongPulseDuration_Max 70
+#define	LongPulseDuration_Min 77
+#define	LongPulseDuration_Max 98
 
-#define	TerminatorDuration_Min 600
-#define	TerminatorDuration_Max 640
+#define	TerminatorDuration_Min 920
+#define	TerminatorDuration_Max 940
 
-
-
-ElroDecoder::ElroDecoder(
+FranElecProtocol::FranElecProtocol(
 	void (*Bitstream)(volatile short int[]), 
-	void (*DeviceCommand)(unsigned short int &, bool &) ,
 	void (*debug)(const char *) )
 {
 	_ProtocolBitstream = Bitstream;
-	_DeviceCommand = DeviceCommand;
 	_debug = debug;
+
 
 	DecodedBitsBufferSize = 24;
 }
 
-void ElroDecoder::DecodeBitstream()
-{	if ((DecodedBitsBuffer[0]!=0) || (DecodedBitsBuffer[2]!=0) || (DecodedBitsBuffer[4]!=0) || (DecodedBitsBuffer[6]!=0) || 
-		(DecodedBitsBuffer[8]!=0) || (DecodedBitsBuffer[10]!=0) || (DecodedBitsBuffer[12]!=0) || (DecodedBitsBuffer[14]!=0) || 
-		(DecodedBitsBuffer[16]!=0) || (DecodedBitsBuffer[18]!=0) || (DecodedBitsBuffer[20]!=0) || (DecodedBitsBuffer[22]!=0) ) return;
-	if ((DecodedBitsBuffer[19]!=1) || (DecodedBitsBuffer[21]!=1)) return;
+void FranElecProtocol::DecodeBitstream()
+{}
 
-	unsigned short int device = (DecodedBitsBuffer[9] * 1) + (DecodedBitsBuffer[11] * 2) + (DecodedBitsBuffer[13] * 4) + 
-					(DecodedBitsBuffer[15] * 8) + (DecodedBitsBuffer[17] * 16) ;
-
-	bool command = DecodedBitsBuffer[23];
-	if (_DeviceCommand!=0) _DeviceCommand(device, command);
-}
-
-void ElroDecoder::DecodePulse(short int pulse, unsigned int duration)
+void FranElecProtocol::DecodePulse(short int pulse, unsigned int duration)
 {
     int durationresult = quantizeduration( duration, DURATION_UNKNOWN, 
 					DURATION_SHORT , ShortPulseDuration_Min, ShortPulseDuration_Max, 

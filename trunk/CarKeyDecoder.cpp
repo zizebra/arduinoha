@@ -10,6 +10,19 @@ enum PulseDuration
 	PULSEDURATION_TERMINATOR = 4
 };
 
+#define	ShortPulseDuration_Min 9
+#define	ShortPulseDuration_Max 25
+
+#define	LongPulseDuration_Min 38
+#define	LongPulseDuration_Max 58
+
+#define	ExtraLongPulseDuration_Min 67
+#define	ExtraLongPulseDuration_Max 97
+
+#define	TerminatorDuration_Min 263
+#define	TerminatorDuration_Max 283
+
+
 
 CarKeyDecoder::CarKeyDecoder(
 	void (*Bitstream)(volatile short int[]), 
@@ -18,17 +31,6 @@ CarKeyDecoder::CarKeyDecoder(
 	_ProtocolBitstream = Bitstream;
 	_debug = debug;
 
-	ShortPulseDuration_Min = 9;
-	ShortPulseDuration_Max = 25;
-
-	LongPulseDuration_Min = 38;
-	LongPulseDuration_Max = 58;
-
-	ExtraLongPulseDuration_Min = 67;
-	ExtraLongPulseDuration_Max = 97;
-
-	TerminatorDuration_Min = 263;
-	TerminatorDuration_Max = 283;
 
 	DecodedBitsBufferSize = 61;
 }
