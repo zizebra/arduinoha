@@ -1,12 +1,12 @@
 #include <HeaderedProtocolBase.h>
-#ifndef X10Decoder_h
-#define X10Decoder_h
+#ifndef X10Protocol_h
+#define X10Protocol_h
 
-class X10Decoder : public HeaderedProtocolBase{
+class X10Protocol : public HeaderedProtocolBase{
 	public:
 		virtual void DecodeBitstream();
 		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
-		X10Decoder(
+		X10Protocol(
 			void (*Bitstream)(volatile short int[]), 
 			void (*debug)(const char *) );
 	private:

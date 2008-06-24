@@ -1,4 +1,4 @@
-#include "X10Decoder.h"
+#include "X10Protocol.h"
 #include "WConstants.h"
 
 #define PULSEDURATION_UNKNOWN 0 
@@ -27,7 +27,7 @@
 #define TrailerSilence_Max 2400
 
 
-X10Decoder::X10Decoder(
+X10Protocol::X10Protocol(
 	void (*Bitstream)(volatile short int[]), 
 	void (*debug)(const char *) )
 {
@@ -38,7 +38,7 @@ X10Decoder::X10Decoder(
 	DecodedBitsBufferSize = 32;
 }
 
-void X10Decoder::DecodeBitstream()
+void X10Protocol::DecodeBitstream()
 {
 	for (int idx=0;idx<8;idx++)
 	{
@@ -58,7 +58,7 @@ void X10Decoder::DecodeBitstream()
 int dur = 0;
 
 
-void X10Decoder::DecodePulse(short int pulse, unsigned int duration)
+void X10Protocol::DecodePulse(short int pulse, unsigned int duration)
 {
 	int durationresult = PULSEDURATION_UNKNOWN;
     if (HIGH==pulse)
