@@ -1,9 +1,12 @@
+//#define ShowPulses
 #define RANEX
 //#define ELRO
 //#define CARKEY
 //#define X10
-//#define MCVOICE
-//#define SKYTRONIC
+#define MCVOICE
+#define SKYTRONIC
+#define SKYTRONIC2
+#define FRANELEC
 
 struct pulse {
 	unsigned int duration;
@@ -18,11 +21,11 @@ struct pulse {
 #endif
 
 #ifdef ELRO
-#include <ElroDecoder.h>
+#include <ElroProtocol.h>
 #endif
 
 #ifdef MCVOICE
-#include <McVoiceDecoder.h>
+#include <McVoiceProtocol.h>
 #endif
 
 #ifdef CARKEY
@@ -37,8 +40,13 @@ struct pulse {
 #include <SkytronicHomeLinkProtocol.h>
 #endif
 
+#ifdef SKYTRONIC2
+#include <Skytronic2Protocol.h>
+#endif
 
-
+#ifdef FRANELEC
+#include <FranElecProtocol.h>
+#endif
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -125,6 +133,20 @@ void McVoice_DeviceBatteryEmptyReceived(unsigned short int &device)
 }
 #endif
 
+#ifdef FRANELEC
+void FranElec_DeviceTrippedReceived(unsigned short int &device)
+{
+  Serial.print("FranElec: ");
+  Serial.println(device, DEC);
+}
+
+void FranElec_DeviceBatteryEmptyReceived(unsigned short int &device)
+{
+  Serial.print("FranElec, Battery Empty: ");
+  Serial.println(device, DEC);
+}
+#endif
+
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -134,26 +156,32 @@ RanexProtocol ranexProtocol = RanexProtocol(Ranex_BitstreamReceived, Ranex_Devic
 #endif
 
 #ifdef ELRO
-ElroDecoder elroDecoder = ElroDecoder(Elro_BitstreamReceived, Elro_DeviceCommandReceived , debug);
+ElroProtocol elroProtocol = ElroProtocol(Elro_BitstreamReceived, Elro_DeviceCommandReceived , debug);
 #endif
 
 #ifdef MCVOICE
-McVoiceDecoder mcvoiceDecoder = McVoiceDecoder(McVoice_BitstreamReceived, McVoice_DeviceTrippedReceived , McVoice_DeviceBatteryEmptyReceived, debug);
+McVoiceProtocol mcvoiceProtocol = McVoiceProtocol(McVoice_BitstreamReceived, McVoice_DeviceTrippedReceived , McVoice_DeviceBatteryEmptyReceived, debug);
 #endif
 
 #ifdef X10
-X10Decoder x10Decoder = X10Decoder(X10_BitstreamReceived, debug);
+X10Protocol x10Protocol = X10Protocol(X10_BitstreamReceived, debug);
 #endif
 
 #ifdef CARKEY
-CarKeyDecoder carkeyDecoder = CarKeyDecoder(CarKey_BitstreamReceived, debug);
+CarKeyProtocol carkeyProtocol = CarKeyProtocol(CarKey_BitstreamReceived, debug);
 #endif
 
 #ifdef SKYTRONIC
 SkytronicHomeLinkProtocol skytronicHomeLinkProtocol = SkytronicHomeLinkProtocol(SkytronicHomeLink_BitstreamReceived, debug);
 #endif
 
+#ifdef SKYTRONIC2
+Skytronic2Protocol skytronic2Protocol = Skytronic2Protocol(Skytronic2_BitstreamReceived, debug);
+#endif
 
+#ifdef FRANELEC
+FranElecProtocol franelecProtocol = FranElecProtocol(FranElec_BitstreamReceived, FranElec_DeviceTrippedReceived , FranElec_DeviceBatteryEmptyReceived, debug);
+#endif
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -219,6 +247,16 @@ void SkytronicHomeLink_BitstreamReceived(volatile short int bitbuffer[])
 }
 #endif
 
+#ifdef SKYTRONIC2
+void Skytronic2_BitstreamReceived(volatile short int bitbuffer[])
+{
+  Serial.print("Skytronic2: ");  
+  for (int idx=0; idx<34;idx++) Serial.print(bitbuffer[idx],DEC);
+  Serial.println("");
+}
+#endif
+
+
 #ifdef CARKEY
 void CarKey_BitstreamReceived(volatile short int bitbuffer[])
 {
@@ -227,6 +265,17 @@ void CarKey_BitstreamReceived(volatile short int bitbuffer[])
   Serial.println("");
 }
 #endif
+
+#ifdef FRANELEC
+void FranElec_BitstreamReceived(volatile short int bitbuffer[])
+{
+  Serial.print("FranElec: ");  
+  for (int idx=0; idx<24;idx++) Serial.print(bitbuffer[idx],DEC);
+  Serial.println("");
+}
+#endif
+
+
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -343,7 +392,6 @@ void InitializePins()
 
 void AttachToRssiInterrupt()
 {
-  Serial.println("AttachToRssiInterrupt");
   //Zet interrupts. Zie 14.11
   TCCR1A=0;   //Normal mode (timer)
   TCCR1B=0<<ICES1 | 1<<CS12 | 0<<CS11 | 0<<CS10 | 1<<ICNC1;  //Pre-scaler: 256, noise canceler, interrupt on edge: faling
@@ -363,24 +411,33 @@ void Start()
 #endif
 
 #ifdef ELRO
-  elroDecoder.Initialize();
+  elroProtocol.Initialize();
 #endif 
 
 #ifdef MCVOICE
-  mcvoiceDecoder.Initialize();
+  mcvoiceProtocol.Initialize();
 #endif
 
 #ifdef X10
-  x10Decoder.Initialize();
+  x10Protocol.Initialize();
 #endif
 
 #ifdef CARKEY
-  carkeyDecoder.Initialize();
+  carkeyProtocol.Initialize();
 #endif
 
 #ifdef SKYTRONIC
   skytronicHomeLinkProtocol.Initialize();
 #endif  
+
+#ifdef SKYTRONIC2
+  skytronic2Protocol.Initialize();
+#endif  
+
+#ifdef FRANELEC
+  franelecProtocol.Initialize();
+#endif  
+
 
   AttachToRssiInterrupt();       
 }
@@ -408,7 +465,6 @@ void Stop()
 void rssiPinTriggered(void)
 {
   cli();
-  Serial.println("RSSI TRIGGER");  
   sendreceivestate = 2;
   
   detachInterrupt(RSSIIRQNR);
@@ -483,21 +539,23 @@ void loop()
   { // yes
     unsigned int duration = receivedpulsesCircularBuffer[receivedpulsesCircularBuffer_readpos].duration;
     unsigned short state = receivedpulsesCircularBuffer[receivedpulsesCircularBuffer_readpos].state;
+#ifdef ShowPulses    
     if (state==HIGH) Serial.print("["); else Serial.print(" ");
     if (duration<10) Serial.print("   "); else if (duration<100) Serial.print("  "); else if (duration<1000) Serial.print(" ");
     Serial.print(duration , DEC);
     if (state==HIGH) Serial.print("]"); else Serial.print(" ");
+#endif
 
 #ifdef RANEX  
     ranexProtocol.DecodePulse(state, duration );
 #endif
 
 #ifdef ELRO
-    elroDecoder.DecodePulse(state, duration);
+    elroProtocol.DecodePulse(state, duration);
 #endif ELRO
 
 #ifdef MCVOICE
-    mcvoiceDecoder.DecodePulse(state, duration );
+    mcvoiceProtocol.DecodePulse(state, duration );
 #endif
 
 #ifdef X10
@@ -510,6 +568,14 @@ void loop()
 
 #ifdef SKYTRONIC
     skytronicHomeLinkProtocol.DecodePulse(state , duration );
+#endif    
+
+#ifdef SKYTRONIC2
+    skytronic2Protocol.DecodePulse(state , duration );
+#endif    
+
+#ifdef FRANELEC
+    franelecProtocol.DecodePulse(state , duration );
 #endif    
     
     if (++receivedpulsesCircularBuffer_readpos >= ReceivedPulsesCircularBufferSize) 
@@ -531,12 +597,6 @@ void loop()
       #endif
     }
 
-
   }
-  
-  
 
 }
-
-
-// Code uitbreiden zodat een Stop wacht tot de receiving klaar is.
