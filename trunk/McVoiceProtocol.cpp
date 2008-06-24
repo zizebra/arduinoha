@@ -1,4 +1,4 @@
-#include "McVoiceDecoder.h"
+#include "McVoiceProtocol.h"
 #include "WConstants.h"
 
 // Optimization: High bits are shorter ([58,29], [58,28], [57,29])
@@ -30,7 +30,7 @@ enum PulseDuration
 
 
 
-McVoiceDecoder::McVoiceDecoder(
+McVoiceProtocol::McVoiceProtocol(
 	void (*Bitstream)(volatile short int[]), 
 	void (*DeviceTripped)(unsigned short int &) ,
 	void (*DeviceBatteryEmpty)(unsigned short int &),
@@ -45,7 +45,7 @@ McVoiceDecoder::McVoiceDecoder(
 	DecodedBitsBufferSize = 24;
 }
 
-void McVoiceDecoder::DecodeBitstream()
+void McVoiceProtocol::DecodeBitstream()
 {	if ((DecodedBitsBuffer[0]!=0) || (DecodedBitsBuffer[2]!=0) || (DecodedBitsBuffer[4]!=0) || (DecodedBitsBuffer[6]!=0) || (DecodedBitsBuffer[8]!=0) || 
 		(DecodedBitsBuffer[10]!=0) || (DecodedBitsBuffer[12]!=0) || (DecodedBitsBuffer[14]!=0) /*|| (DecodedBitsBuffer[18]!=0) || (DecodedBitsBuffer[19]!=0) ||
 		(DecodedBitsBuffer[20]!=0) || (DecodedBitsBuffer[21]!=0) || (DecodedBitsBuffer[22]!=0) || (DecodedBitsBuffer[23]!=0)*/) return;
@@ -59,7 +59,7 @@ void McVoiceDecoder::DecodeBitstream()
 	if (_DeviceBatteryEmpty!=0 && BatteryEmpty)  _DeviceBatteryEmpty(device);
 }
 
-void McVoiceDecoder::DecodePulse(short int pulse, unsigned int duration)
+void McVoiceProtocol::DecodePulse(short int pulse, unsigned int duration)
 {
     int durationresult = quantizeduration( duration, DURATION_UNKNOWN, 
 					DURATION_SHORT , ShortPulseDuration_Min, ShortPulseDuration_Max, 

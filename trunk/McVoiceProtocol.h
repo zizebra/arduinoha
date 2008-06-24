@@ -1,11 +1,11 @@
 #include <TerminatedProtocolBase.h>
-#ifndef McVoiceDecoder_h
-#define McVoiceDecoder_h
+#ifndef McVoiceProtocol_h
+#define McVoiceProtocol_h
 
-class McVoiceDecoder : public TerminatedProtocolBase {
+class McVoiceProtocol : public TerminatedProtocolBase {
 	public:
 		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
-		McVoiceDecoder(
+		McVoiceProtocol(
 			void (*Bitstream)(volatile short int[]), 
 			void (*DeviceTripped)(unsigned short int &),
 			void (*DeviceBatteryEmpty)(unsigned short int &),
