@@ -23,9 +23,14 @@ enum PulseDuration
 
 FranElecProtocol::FranElecProtocol(
 	void (*Bitstream)(volatile short int[]), 
+	void (*DeviceTripped)(unsigned short int &) ,
+	void (*DeviceBatteryEmpty)(unsigned short int &),
 	void (*debug)(const char *) )
 {
 	_ProtocolBitstream = Bitstream;
+	_DeviceTripped = DeviceTripped;
+	_DeviceBatteryEmpty = DeviceBatteryEmpty;
+
 	_debug = debug;
 
 
@@ -33,7 +38,19 @@ FranElecProtocol::FranElecProtocol(
 }
 
 void FranElecProtocol::DecodeBitstream()
-{}
+{
+	if ((DecodedBitsBuffer[0]!=0) || (DecodedBitsBuffer[2]!=0) || (DecodedBitsBuffer[4]!=0) || (DecodedBitsBuffer[6]!=0) || (DecodedBitsBuffer[8]!=0) || 
+		(DecodedBitsBuffer[10]!=0) || (DecodedBitsBuffer[12]!=0) || (DecodedBitsBuffer[14]!=0) /*|| (DecodedBitsBuffer[18]!=0) || (DecodedBitsBuffer[19]!=0) ||
+		(DecodedBitsBuffer[20]!=0) || (DecodedBitsBuffer[21]!=0) || (DecodedBitsBuffer[22]!=0) || (DecodedBitsBuffer[23]!=0)*/) return;
+	if  (DecodedBitsBuffer[17]!=1) return;
+
+	bool BatteryEmpty = !DecodedBitsBuffer[16];
+
+	unsigned short int device = (!DecodedBitsBuffer[15] * 1) + (!DecodedBitsBuffer[13] * 2) + (!DecodedBitsBuffer[11] * 4) + (!DecodedBitsBuffer[9] * 8) + (!DecodedBitsBuffer[7] * 16)  + (!DecodedBitsBuffer[5] * 32) + (!DecodedBitsBuffer[3] * 64) + (!DecodedBitsBuffer[1] * 128) ;
+
+	if (_DeviceTripped!=0) _DeviceTripped(device);
+	if (_DeviceBatteryEmpty!=0 && BatteryEmpty)  _DeviceBatteryEmpty(device);
+}
 
 void FranElecProtocol::DecodePulse(short int pulse, unsigned int duration)
 {

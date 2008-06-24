@@ -10,6 +10,16 @@ enum PulseDuration
 	DURATION_TERMINATOR = 3
 };
 
+#define	ShortPulseDuration_Min 5
+#define	ShortPulseDuration_Max 20
+
+#define	LongPulseDuration_Min 30
+#define	LongPulseDuration_Max 75
+
+#define	TerminatorDuration_Min 430
+#define	TerminatorDuration_Max 460
+
+
 RanexProtocol::RanexProtocol(
 	void (*Bitstream)(volatile short int[]), 
 	void (*DeviceCommand)(unsigned short int &, bool &) ,
@@ -18,15 +28,6 @@ RanexProtocol::RanexProtocol(
 	_ProtocolBitstream = Bitstream;
 	_DeviceCommand = DeviceCommand;
 	_debug = debug;
-
-	ShortPulseDuration_Min = 5;
-	ShortPulseDuration_Max = 20;
-
-	LongPulseDuration_Min = 30;
-	LongPulseDuration_Max = 75;
-
-	TerminatorDuration_Min = 430;
-	TerminatorDuration_Max = 460;
 
 	DecodedBitsBufferSize = 12;
 	EncodedBitsBufferSize = 12 * 4 + 2;
