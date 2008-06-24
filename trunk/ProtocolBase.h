@@ -8,6 +8,7 @@ class ProtocolBase {
 		virtual void Initialize();
 	private:
 	protected:
+		void StoreEncodedPulse(unsigned int);
 		void (*_debug)(const char *);
 static unsigned short quantizeduration(unsigned int duration, unsigned short quant_unknown, 
 					unsigned short quant1, unsigned int quant1_min, unsigned int quant1_max )

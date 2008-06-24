@@ -1,7 +1,17 @@
 #include "FranElecProtocol.h"
 #include "WConstants.h"
 
-// [  31]   89 [  84]   29 [  28]   88 [  87]   27 [  31]   88 [  28]   89 [  29]   91 [  84]   27 [  32]   87 [  29]   88 [  30]   88 [  29]   91 [  27]   89 [  29]   88 [  31]   87 [  30]   89 [  85]   32 [  82]   34 [  26]   88 [  30]   89 [  29]   88 [  30]   91 [  26]   92 [  26]   91 [  28]  925 
+// Product: 	PIR Motion Sensor
+// Productcode: FRANELEC SENS01
+// Chip: 	PT2262
+// [  26] 91 [  81] 32 [  25] 92 [  80] 33 [  24] 94 [  79] 34 [  23] 94 [  79] 35 [  23] 94 [  79] 35 [  22] 95 [  79] 36 [  21] 96 [  78] 36 [  22] 96  [  77] 38 [  76] 38 [  77] 38 [  20] 98 [  20] 97 [  21] 97 [  21] 97 [  20] 97 [  21] 97 [  21] 933
+// [  31] 89 [  84] 29 [  28] 88 [  87] 27 [  31] 88 [  28] 89 [  29] 91 [  84] 27 [  32] 87 [  29] 88 [  30] 88 [  29] 91 [  27] 89 [  29] 88 [  31] 87 [  30] 89 [  85] 32 [  82] 34 [  26] 88 [  30] 89 [  29] 88 [  30] 91 [  26] 92 [  26] 91 [  28]  925 
+
+
+// Product:	Wireless Door Bell
+// Productcode: FRANELEC ANTI01
+// Chip:	M3D-95 / E0927
+
 
 
 enum PulseDuration 
@@ -12,11 +22,11 @@ enum PulseDuration
 	DURATION_TERMINATOR = 3
 };
 
-#define	ShortPulseDuration_Min 20
-#define	ShortPulseDuration_Max 37
+#define	ShortPulseDuration_Min 17
+#define	ShortPulseDuration_Max 39
 
-#define	LongPulseDuration_Min 77
-#define	LongPulseDuration_Max 98
+#define	LongPulseDuration_Min 75
+#define	LongPulseDuration_Max 99
 
 #define	TerminatorDuration_Min 920
 #define	TerminatorDuration_Max 940

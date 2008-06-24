@@ -11,7 +11,6 @@ class RanexProtocol : public TerminatedProtocolBase {
 			void (*debug)(const char *) );
 		unsigned int * EncodeCommand(unsigned short int device, bool command);
 	private:
-		void StoreEncodedPulse(unsigned int duration);
 		void EncodePulse(unsigned short int pulse);
 		void EncodeBit(unsigned short bit);
 		void EncodeTerminator();

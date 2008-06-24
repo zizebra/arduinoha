@@ -40,15 +40,6 @@ void RanexProtocol::DecodeBitstream()
 	if (_DeviceCommand!=0) _DeviceCommand(device, command);
 }
 
-void RanexProtocol::StoreEncodedPulse(unsigned int duration)
-{
-	if (EncodedBitsBufferPosIdx < EncodedBitsBufferSize)
-	{
-		EncodedBitsBuffer[EncodedBitsBufferPosIdx] = duration;
-	}
-	EncodedBitsBufferPosIdx ++;
-}
-
 void RanexProtocol::EncodePulse(unsigned short int pulse)
 {
 	switch (pulse)

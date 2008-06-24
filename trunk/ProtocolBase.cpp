@@ -45,3 +45,13 @@ void ProtocolBase::ResetEncodedBitsBuffer()
 	EncodedBitsBufferPosIdx = 0;
 }
 
+void ProtocolBase::StoreEncodedPulse(unsigned int duration)
+{
+	if (EncodedBitsBufferPosIdx < EncodedBitsBufferSize)
+	{
+		EncodedBitsBuffer[EncodedBitsBufferPosIdx] = duration;
+	}
+	EncodedBitsBufferPosIdx ++;
+}
+
+
