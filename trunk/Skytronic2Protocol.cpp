@@ -1,4 +1,4 @@
-#include "Skytronic2.h"
+#include "Skytronic2Protocol.h"
 #include "WConstants.h"
 
 
@@ -57,7 +57,7 @@ enum PulseDuration
 
 
 
-Skytronic2::Skytronic2(
+Skytronic2Protocol::Skytronic2Protocol(
 	void (*Bitstream)(volatile short int[]), 
 	void (*debug)(const char *) )
 {
@@ -67,7 +67,7 @@ Skytronic2::Skytronic2(
 	DecodedBitsBufferSize = 34;
 }
 
-void Skytronic2::DecodeBitstream()
+void Skytronic2Protocol::DecodeBitstream()
 {
 //	if [6]==1 Command = On else Command = off
 
@@ -76,7 +76,7 @@ void Skytronic2::DecodeBitstream()
 //	if ([10]==1 && [11]==0) device +=3
 //	if ([10]==0 && [11]==0) device +=4}
 
-void Skytronic2::DecodePulse(short int pulse, unsigned int duration)
+void Skytronic2Protocol::DecodePulse(short int pulse, unsigned int duration)
 {
     if (HIGH==pulse)
     { // een hoog signaal

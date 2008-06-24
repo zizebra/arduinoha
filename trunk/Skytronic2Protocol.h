@@ -1,11 +1,11 @@
 #include <TerminatedProtocolBase.h>
-#ifndef Skytronic2_h
-#define Skytronic2_h
+#ifndef Skytronic2Protocol_h
+#define Skytronic2Protocol_h
 
-class Skytronic2 : public TerminatedProtocolBase {
+class Skytronic2Protocol : public TerminatedProtocolBase {
 	public:
 		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
-		Skytronic2(
+		Skytronic2Protocol(
 			void (*Bitstream)(volatile short int[]), 
 			void (*debug)(const char *) );
 	private:
