@@ -28,12 +28,11 @@
 
 
 X10Protocol::X10Protocol(
-	void (*Bitstream)(volatile short int[]), 
+	void (*Bitstream)(const char * , unsigned short , volatile short int[]), 
 	void (*debug)(const char *) )
 {
 	_ProtocolBitstream = Bitstream;
 	_debug = debug;
-	
 
 	DecodedBitsBufferSize = 32;
 }
@@ -75,7 +74,7 @@ void X10Protocol::DecodePulse(short int pulse, unsigned int duration)
 			}
 			else
 			{
-				ResetBitDecodeState();
+				BitDecodeState = 0;
 				ResetDecodedBitsBuffer();
 			}
 			break;
@@ -97,7 +96,7 @@ void X10Protocol::DecodePulse(short int pulse, unsigned int duration)
 			} else
 			{
 				ResetDecodedBitsBuffer();
-				ResetBitDecodeState();
+				BitDecodeState = 0;
 			}
 			
 			break;
@@ -110,7 +109,7 @@ void X10Protocol::DecodePulse(short int pulse, unsigned int duration)
 			} else
 			{
 				
-				ResetBitDecodeState();
+				BitDecodeState = 0;
 			}
 			ResetDecodedBitsBuffer();
 			break;
@@ -130,7 +129,7 @@ void X10Protocol::DecodePulse(short int pulse, unsigned int duration)
 			}
 			else
 			{
-				ResetBitDecodeState();
+				BitDecodeState = 0;
 				ResetDecodedBitsBuffer();
 			}
 			break;
@@ -139,7 +138,7 @@ void X10Protocol::DecodePulse(short int pulse, unsigned int duration)
 			break;
 		default :
 			ResetDecodedBitsBuffer();
-			ResetBitDecodeState();
+			BitDecodeState = 0;
         }
     }
 

@@ -6,7 +6,7 @@ class McVoiceProtocol : public TerminatedProtocolBase {
 	public:
 		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
 		McVoiceProtocol(
-			void (*Bitstream)(volatile short int[]), 
+			void (*Bitstream)(const char * , unsigned short, volatile short int[]), 
 			void (*DeviceTripped)(unsigned short int &),
 			void (*DeviceBatteryEmpty)(unsigned short int &),
 			void (*debug)(const char *) );

@@ -19,9 +19,10 @@ enum PulseDuration
 #define	TerminatorDuration_Min 430
 #define	TerminatorDuration_Max 460
 
+RanexProtocol::DecodedBitsBufferSize 12;
 
 RanexProtocol::RanexProtocol(
-	void (*Bitstream)(volatile short int[]), 
+	void (*Bitstream)(const char *, unsigned short , volatile short int[]), 
 	void (*DeviceCommand)(unsigned short int &, bool &) ,
 	void (*debug)(const char *) )
 {
@@ -120,7 +121,7 @@ void RanexProtocol::DecodePulse(short int pulse,unsigned int duration)
            else 
 	   {
 		ResetDecodedBitsBuffer();
-		ResetBitDecodeState();
+		BitDecodeState = 0;
 	   }
            break;
          case DURATION_LONG:
@@ -130,11 +131,11 @@ void RanexProtocol::DecodePulse(short int pulse,unsigned int duration)
            else
 	   {
  		 ResetDecodedBitsBuffer();
-		 ResetBitDecodeState();
+		 BitDecodeState = 0;
 	   }
            break;
          default:
-	   ResetBitDecodeState();
+	   BitDecodeState = 0;
 	   ResetDecodedBitsBuffer();
            break;
        }
@@ -149,15 +150,15 @@ void RanexProtocol::DecodePulse(short int pulse,unsigned int duration)
             else if (13==BitDecodeState) 
             { // een 1 ontvangen
 	      StoreDecodedBit(1);
-              ResetBitDecodeState();
+              BitDecodeState = 0;
             } else if (23==BitDecodeState)
             {
 	      StoreDecodedBit(2);
-              ResetBitDecodeState();
+              BitDecodeState = 0;
             } else
             {
 	      ResetDecodedBitsBuffer();
-              ResetBitDecodeState();
+              BitDecodeState = 0;
             }
             break;
           case DURATION_LONG:
@@ -165,24 +166,24 @@ void RanexProtocol::DecodePulse(short int pulse,unsigned int duration)
             else if (3==BitDecodeState)
             { // "0"
 	      StoreDecodedBit(0);
-              ResetBitDecodeState();
+              BitDecodeState = 0;
             } else 
 	    {
-		ResetBitDecodeState();
+		BitDecodeState = 0;
 		ResetDecodedBitsBuffer();
 	    }
             break;  
           case DURATION_TERMINATOR :	    
             if (1==BitDecodeState && DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
             {
-		if (_ProtocolBitstream!=0) _ProtocolBitstream(DecodedBitsBuffer);
+		if (_ProtocolBitstream!=0) _ProtocolBitstream("Ranex\0" , DecodedBitsBufferSize , DecodedBitsBuffer);
 		DecodeBitstream();			
             } 
-            ResetBitDecodeState();
+            BitDecodeState = 0;
 	    ResetDecodedBitsBuffer();
             break;
           default: 
-            ResetBitDecodeState();
+            BitDecodeState = 0;
 	    ResetDecodedBitsBuffer();
             break;  
         }

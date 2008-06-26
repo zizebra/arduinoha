@@ -9,13 +9,12 @@ void HeaderedProtocolBase::StoreDecodedBit(short int bit)
 	// Is the buffer full?
 	if (DecodedBitsBufferPosIdx+1>=DecodedBitsBufferSize) 
 	{ // Yes
-		if (_ProtocolBitstream!=0) _ProtocolBitstream(DecodedBitsBuffer);
+		if (_ProtocolBitstream!=0) _ProtocolBitstream("Unknown\0" , DecodedBitsBufferSize , DecodedBitsBuffer);
 		DecodeBitstream();
 
-		ResetBitDecodeState();
+		BitDecodeState = 0;
 		ResetDecodedBitsBuffer();
 	}
-
 
 	DecodedBitsBufferPosIdx++;
 }

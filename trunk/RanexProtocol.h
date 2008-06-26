@@ -6,7 +6,7 @@ class RanexProtocol : public TerminatedProtocolBase {
 	public:
 		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
 		RanexProtocol(
-			void (*Bitstream)(volatile short int[]), 
+			void (*Bitstream)(const char * , unsigned short, volatile short int[]), 
 			void (*DeviceCommand)(unsigned short int &, bool &),
 			void (*debug)(const char *) );
 		unsigned int * EncodeCommand(unsigned short int device, bool command);

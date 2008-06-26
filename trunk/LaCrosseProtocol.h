@@ -1,11 +1,11 @@
 #include <TerminatedProtocolBase.h>
-#ifndef Skytronic2Protocol_h
-#define Skytronic2Protocol_h
+#ifndef LaCrosseProtocol_h
+#define LaCrosseProtocol_h
 
-class Skytronic2Protocol : public TerminatedProtocolBase {
+class LaCrosseProtocol : public TerminatedProtocolBase {
 	public:
 		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
-		Skytronic2Protocol(
+		LaCrosseProtocol(
 			void (*Bitstream)(const char * , unsigned short, volatile short int[]), 
 			void (*debug)(const char *) );
 	private:

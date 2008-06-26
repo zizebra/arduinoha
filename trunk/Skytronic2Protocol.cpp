@@ -58,7 +58,7 @@ enum PulseDuration
 
 
 Skytronic2Protocol::Skytronic2Protocol(
-	void (*Bitstream)(volatile short int[]), 
+	void (*Bitstream)(const char * , unsigned short , volatile short int[]), 
 	void (*debug)(const char *) )
 {
 	_ProtocolBitstream = Bitstream;
@@ -91,11 +91,11 @@ void Skytronic2Protocol::DecodePulse(short int pulse, unsigned int duration)
 	   else if (4==BitDecodeState) {BitDecodeState=5;}
 	   else
 	   {
-		ResetBitDecodeState();
+		BitDecodeState = 0;
 	   }
            break;
          default:
-	   ResetBitDecodeState();
+	   BitDecodeState = 0;
 	   ResetDecodedBitsBuffer();
            break;
        }
@@ -114,15 +114,15 @@ void Skytronic2Protocol::DecodePulse(short int pulse, unsigned int duration)
 	    else if (3==BitDecodeState)
             { // SSSS
 	      StoreDecodedBit(2);
-              ResetBitDecodeState();
+              BitDecodeState = 0;
             } else if (5==BitDecodeState)
 	    { // SLSS
 	      StoreDecodedBit(1);
-              ResetBitDecodeState();
+              BitDecodeState = 0;
  	    } else
             {
 	      ResetDecodedBitsBuffer();
-              ResetBitDecodeState();
+              BitDecodeState = 0;
             }
             break;
           case DURATION_LONG:
@@ -130,24 +130,24 @@ void Skytronic2Protocol::DecodePulse(short int pulse, unsigned int duration)
 	    else if (3==BitDecodeState)
             { // SSSL
 	      StoreDecodedBit(0);
-              ResetBitDecodeState();
+              BitDecodeState = 0;
             } else 
 	    {
-		ResetBitDecodeState();
+		BitDecodeState = 0;
 		ResetDecodedBitsBuffer();
 	    }
             break;  
           case DURATION_TERMINATOR :
             if (1==BitDecodeState && DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
             {
-		if (_ProtocolBitstream!=0) _ProtocolBitstream(DecodedBitsBuffer);
+		if (_ProtocolBitstream!=0) _ProtocolBitstream("Skytronic2\0",DecodedBitsBufferSize,DecodedBitsBuffer);
 		DecodeBitstream();			
             } 
-            ResetBitDecodeState();
+            BitDecodeState = 0;
 	    ResetDecodedBitsBuffer();
             break;
           default: 
-            ResetBitDecodeState();
+            BitDecodeState = 0;
 	    ResetDecodedBitsBuffer();
             break;  
         }

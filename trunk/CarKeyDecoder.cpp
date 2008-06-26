@@ -25,7 +25,7 @@ enum PulseDuration
 
 
 CarKeyDecoder::CarKeyDecoder(
-	void (*Bitstream)(volatile short int[]), 
+	void (*Bitstream)(const char * , unsigned short ,volatile short int[]), 
 	void (*debug)(const char *) )
 {
 	_ProtocolBitstream = Bitstream;
@@ -62,7 +62,7 @@ void CarKeyDecoder::DecodePulse(short int pulse, unsigned int duration)
 				{
 					ResetDecodedBitsBuffer();
 				}
-				ResetBitDecodeState();
+				BitDecodeState = 0;
 				break;
 			case PULSEDURATION_LONG :
 				if (BitDecodeState==1)
@@ -72,20 +72,20 @@ void CarKeyDecoder::DecodePulse(short int pulse, unsigned int duration)
 				{
 					StoreDecodedBit(3); // X L
 				}
-				ResetBitDecodeState();			
+				BitDecodeState = 0;			
 				break;
 			case PULSEDURATION_TERMINATOR : 
 			        if (DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)    				
 				{
-					if (_ProtocolBitstream!=0) _ProtocolBitstream(DecodedBitsBuffer);
+					if (_ProtocolBitstream!=0) _ProtocolBitstream("CarKey\0", DecodedBitsBufferSize,DecodedBitsBuffer);
 					DecodeBitstream();
 				}
 
 				ResetDecodedBitsBuffer();
-				ResetBitDecodeState();
+				BitDecodeState = 0;
 				break;
 			default :
-				ResetBitDecodeState();
+				BitDecodeState = 0;
 				ResetDecodedBitsBuffer();
 				break;
 		}		
@@ -100,7 +100,7 @@ void CarKeyDecoder::DecodePulse(short int pulse, unsigned int duration)
 				if (BitDecodeState==0) BitDecodeState = 2;
 				break;
 			default :
-				ResetBitDecodeState();
+				BitDecodeState = 0;
 				ResetDecodedBitsBuffer();
 				break;
 		}

@@ -14,6 +14,7 @@
 // [ 352]  121 [  35]   90 [  35]   91 [  34]   93 [  32]   93 [  32]   93 [  33]   93 [  32]   30 [  32]   31 [  32]   31 [  30]   33 [  30]   33 [  29]   96 [  30]   96 [  30]   32 [  29] 3111 
 // [   3]  120 [  36]   90 [  35]   91 [  34]   91 [  34]   92 [  33]   92 [  33]   92 [  34]   29 [  33]   30 [  32]   31 [  32]   31 [  31]   31 [  32]   94 [  31]   94 [  31]   32 [  30] 2885 
 // Status: decoded correctly
+// One trigger, sends 10 commands
 
 
 #define DURATION_UNKNOWN 0 
@@ -35,12 +36,12 @@
 #define DurationLong_Min 85
 #define DurationLong_Max 100
 
-#define TerminatorSilence_Min 2500
+#define TerminatorSilence_Min 2200
 #define TerminatorSilence_Max 6000
 
 
 SkytronicHomeLinkProtocol::SkytronicHomeLinkProtocol(
-	void (*Bitstream)(volatile short int[]), 
+	void (*Bitstream)(const char * , unsigned short , volatile short int[]), 
 	void (*DeviceTripped)(unsigned short int &,unsigned short int &) ,
 	void (*debug)(const char *) )
 {
@@ -50,7 +51,7 @@ SkytronicHomeLinkProtocol::SkytronicHomeLinkProtocol(
 	
 
 	DecodedBitsBufferSize = 14;
-	EncodedBitsBufferSize = 14 * 2 + 2 + 2;
+	EncodedBitsBufferSize = (14 * 2 + 2 + 8) * 2;
 }
 
 void SkytronicHomeLinkProtocol::DecodeBitstream()
@@ -78,7 +79,7 @@ void SkytronicHomeLinkProtocol::DecodePulse(short int pulse, unsigned int durati
 			}
 			else
 			{
-				ResetBitDecodeState();
+				BitDecodeState = 0;
 				ResetDecodedBitsBuffer();
 			}
 			break;
@@ -91,12 +92,12 @@ void SkytronicHomeLinkProtocol::DecodePulse(short int pulse, unsigned int durati
 				BitDecodeState = 3;
 			} else 
 			{
-				ResetBitDecodeState();
+				BitDecodeState = 0;
 				ResetDecodedBitsBuffer();
 			}
 			break;
 		default :
-			ResetBitDecodeState();
+			BitDecodeState = 0;
 			ResetDecodedBitsBuffer();
 			break;
 	}
@@ -113,7 +114,7 @@ void SkytronicHomeLinkProtocol::DecodePulse(short int pulse, unsigned int durati
 				BitDecodeState = 2;
 			} else
 			{
-				ResetBitDecodeState();
+				BitDecodeState = 0;
 				ResetDecodedBitsBuffer();
 			}
 			break;
@@ -135,20 +136,20 @@ void SkytronicHomeLinkProtocol::DecodePulse(short int pulse, unsigned int durati
 			{
 		            	if (DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
 		            	{
-					if (_ProtocolBitstream!=0) _ProtocolBitstream(DecodedBitsBuffer);
+					if (_ProtocolBitstream!=0) _ProtocolBitstream("Skylink\0",DecodedBitsBufferSize, DecodedBitsBuffer);
 					DecodeBitstream();			
             		    	} 
-				ResetBitDecodeState();
+				BitDecodeState = 0;
 				ResetDecodedBitsBuffer();
 			} else
 			{
-				ResetBitDecodeState();
+				BitDecodeState = 0;
 				ResetDecodedBitsBuffer();
 			}
 			break;
 		default :
 			ResetDecodedBitsBuffer();
-			ResetBitDecodeState();
+			BitDecodeState = 0;
         }
     }
 
@@ -159,13 +160,13 @@ void SkytronicHomeLinkProtocol::EncodePulse(unsigned short int pulse)
 	switch (pulse)
 	{
 		case DURATION_SHORT:
-			StoreEncodedPulse( 35 ); 
+			StoreEncodedPulse( 34 ); 
 			break;
 		case DURATION_LONG:
-			StoreEncodedPulse( 90 ); 
+			StoreEncodedPulse( 92 ); 
 			break;
 		case DURATION_LEADERHIGH:
-			StoreEncodedPulse( 132 );
+			StoreEncodedPulse( 3 );
 			break;
 		case DURATION_LEADERLOW:
 			StoreEncodedPulse( 120 );
@@ -201,6 +202,13 @@ void SkytronicHomeLinkProtocol::EncodeTerminator()
 {
 	EncodePulse(DURATION_SHORT);
 	EncodePulse(DURATION_TERMINATOR);
+
+	StoreEncodedPulse(  37);
+	StoreEncodedPulse(  250);
+	StoreEncodedPulse(  19);
+	StoreEncodedPulse( 61 );
+	StoreEncodedPulse(  10);
+	StoreEncodedPulse(30000);
 }
 
 unsigned int * SkytronicHomeLinkProtocol::EncodeCommand(unsigned short int device, unsigned short int house)
@@ -224,6 +232,25 @@ unsigned int * SkytronicHomeLinkProtocol::EncodeCommand(unsigned short int devic
 	EncodeBit(0);
 	EncodeBit(1);
 	EncodeTerminator();
+
+	EncodeCarrier();
+	if (device & 1 !=0) EncodeBit(1); else EncodeBit(0);
+	if (device & 2 !=0) EncodeBit(1); else EncodeBit(0);
+	if (device & 4 !=0) EncodeBit(1); else EncodeBit(0);
+	if (device & 8 !=0) EncodeBit(1); else EncodeBit(0);
+	if (device & 16 !=0) EncodeBit(1); else EncodeBit(0);
+	if (device & 32 !=0) EncodeBit(1); else EncodeBit(0);
+	EncodeBit(1);
+	EncodeBit(1);
+	EncodeBit(1);
+	if (house & 2 !=0) EncodeBit(1); else EncodeBit(0);
+	if (house & 1 !=0) EncodeBit(1); else EncodeBit(0);
+	EncodeBit(1);
+	EncodeBit(1);
+	EncodeBit(1);
+	EncodeTerminator();
+
+
 	return EncodedBitsBuffer;
 	
 }

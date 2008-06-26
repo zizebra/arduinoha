@@ -6,7 +6,7 @@ class CarKeyDecoder : public TerminatedProtocolBase {
 	public:
 		virtual void DecodePulse(short int pulse ,unsigned int duration) ;
 		CarKeyDecoder(
-			void (*Bitstream)(volatile short int[]), 
+			void (*Bitstream)(const char * , unsigned short , volatile short int[]), 
 			void (*debug)(const char *) );
 	private:
 		unsigned int ShortPulseDuration_Min;

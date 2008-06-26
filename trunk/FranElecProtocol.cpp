@@ -32,7 +32,7 @@ enum PulseDuration
 #define	TerminatorDuration_Max 940
 
 FranElecProtocol::FranElecProtocol(
-	void (*Bitstream)(volatile short int[]), 
+	void (*Bitstream)(const char *, unsigned short , volatile short int[]), 
 	void (*DeviceTripped)(unsigned short int &) ,
 	void (*DeviceBatteryEmpty)(unsigned short int &),
 	void (*debug)(const char *) )
@@ -76,18 +76,18 @@ void FranElecProtocol::DecodePulse(short int pulse, unsigned int duration)
            if (0==BitDecodeState) BitDecodeState=1;
            else 
 	   {
-		ResetBitDecodeState();
+		BitDecodeState = 0;
 	   }
            break;
          case DURATION_LONG:
            if (0==BitDecodeState) BitDecodeState=2;
            else
 	   {
-		 ResetBitDecodeState();
+		 BitDecodeState = 0;
 	   }
            break;
          default:
-	   ResetBitDecodeState();
+	   BitDecodeState = 0;
 	   ResetDecodedBitsBuffer();
            break;
        }
@@ -100,35 +100,35 @@ void FranElecProtocol::DecodePulse(short int pulse, unsigned int duration)
             if (2==BitDecodeState) 
             { // een 1 ontvangen
 	      StoreDecodedBit(1);
-              ResetBitDecodeState();
+              BitDecodeState = 0;
             } else 
             {
 	      ResetDecodedBitsBuffer();
-              ResetBitDecodeState();
+              BitDecodeState = 0;
             }
             break;
           case DURATION_LONG:
             if (1==BitDecodeState) 
             { // "0"
 	      StoreDecodedBit(0);
-              ResetBitDecodeState();
+              BitDecodeState = 0;
             } else 
 	    {
-		ResetBitDecodeState();
+		BitDecodeState = 0;
 		ResetDecodedBitsBuffer();
 	    }
             break;  
           case DURATION_TERMINATOR :
             if (1==BitDecodeState && DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
             {
-		if (_ProtocolBitstream!=0) _ProtocolBitstream(DecodedBitsBuffer);
+		if (_ProtocolBitstream!=0) _ProtocolBitstream("FranElec\0" , DecodedBitsBufferSize , DecodedBitsBuffer);
 		DecodeBitstream();			
             } 
-            ResetBitDecodeState();
+            BitDecodeState = 0;
 	    ResetDecodedBitsBuffer();
             break;
           default: 
-            ResetBitDecodeState();
+            BitDecodeState = 0;
 	    ResetDecodedBitsBuffer();
             break;  
         }
