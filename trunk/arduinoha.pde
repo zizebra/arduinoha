@@ -1,18 +1,18 @@
-//#define ShowPulses
+#define ShowPulses
 #define RANEX
-//#define ELRO
-//#define CARKEY
-//#define X10
+#define ELRO
+#define CARKEY
+#define X10
 #define MCVOICE
 #define SKYTRONIC
 #define SKYTRONIC2
 #define FRANELEC
+#define LACROSSE
 
 struct pulse {
 	unsigned int duration;
 	unsigned short state;
 };
-
 
 #include <ProtocolBase.h>
 
@@ -29,11 +29,11 @@ struct pulse {
 #endif
 
 #ifdef CARKEY
-#include <CarKeyDecoder.h>
+#include <CarKeyProtocol.h>
 #endif
 
 #ifdef X10
-#include <X10Decoder.h>
+#include <X10Protocol.h>
 #endif
 
 #ifdef SKYTRONIC
@@ -46,6 +46,10 @@ struct pulse {
 
 #ifdef FRANELEC
 #include <FranElecProtocol.h>
+#endif
+
+#ifdef LACROSSE
+#include <LaCrosseProtocol.h>
 #endif
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -68,7 +72,8 @@ struct pulse {
 
 // This defines the number of received pulses which can be stored in the Circular buffer. 
 // This buffer is used to allow pulses to be received while previous pulses are still being processed.
-#define ReceivedPulsesCircularBufferSize 10
+// The Arduino must catch up or an overflow will occur and pulses will be lost.
+#define ReceivedPulsesCircularBufferSize 20
 
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -102,86 +107,102 @@ unsigned short sendreceivestate = 0;
 // --------------------------------------------------------------------------------------------------------------------------------------------------
 
 #ifdef RANEX
-void Ranex_DeviceCommandReceived(unsigned short int &device, bool &command)
+void Ranex_DeviceCommandReceived(char * id, unsigned short int &device, bool &command)
 {
-  Serial.print("RANEX: ");
+  Serial.print(id);
   Serial.print(device, DEC);
   if (command) Serial.println(" ON"); else Serial.println(" OFF");
 }
 #endif
 
 #ifdef ELRO
-void Elro_DeviceCommandReceived(unsigned short int &device, bool &command)
+void Elro_DeviceCommandReceived(char * id,  unsigned short int &device, bool &command)
 {
-  Serial.print("Elro: ");
+  Serial.print(id);
   Serial.print(device, DEC);
   if (command) Serial.println(" ON"); else Serial.println(" OFF");
 }
 #endif
 
 #ifdef MCVOICE
-void McVoice_DeviceTrippedReceived(unsigned short int &device)
-{
-  Serial.print("McVoice: ");
+void McVoice_DeviceTrippedReceived(char * id, unsigned short int &device)
+{  
+  Serial.print(id);
   Serial.println(device, DEC);
 }
 
-void McVoice_DeviceBatteryEmptyReceived(unsigned short int &device)
+void McVoice_DeviceBatteryEmptyReceived(char * id , unsigned short int &device)
 {
-  Serial.print("McVoice, Battery Empty: ");
+  Serial.print( id );
+  Serial.print(" Battery Empty: ");
   Serial.println(device, DEC);
 }
 #endif
 
 #ifdef FRANELEC
-void FranElec_DeviceTrippedReceived(unsigned short int &device)
+void FranElec_DeviceTrippedReceived(char * id,  unsigned short int &device)
 {
-  Serial.print("FranElec: ");
+  Serial.print(id);
   Serial.println(device, DEC);
 }
 
-void FranElec_DeviceBatteryEmptyReceived(unsigned short int &device)
+void FranElec_DeviceBatteryEmptyReceived(char * id, unsigned short int &device)
 {
-  Serial.print("FranElec, Battery Empty: ");
+  Serial.print(id);
+  Serial.print(" Battery Empty: ");
   Serial.println(device, DEC);
 }
 #endif
 
+#ifdef SKYTRONIC
+void SkyTronic_DeviceTrippedReceived(char * id, unsigned short int &device, unsigned short int &house)
+{
+  Serial.print(id);
+  Serial.print(device, DEC);
+  Serial.print(" ");
+  Serial.println(house, DEC);
+}
+#endif
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 #ifdef RANEX
-RanexProtocol ranexProtocol = RanexProtocol(Ranex_BitstreamReceived, Ranex_DeviceCommandReceived , debug);
+RanexProtocol ranexProtocol = RanexProtocol("Ranex 433\0", BitstreamReceived, Ranex_DeviceCommandReceived , debug);
 #endif
 
 #ifdef ELRO
-ElroProtocol elroProtocol = ElroProtocol(Elro_BitstreamReceived, Elro_DeviceCommandReceived , debug);
+ElroProtocol elroProtocol = ElroProtocol("Elro 433\0" , BitstreamReceived, Elro_DeviceCommandReceived , debug);
 #endif
 
 #ifdef MCVOICE
-McVoiceProtocol mcvoiceProtocol = McVoiceProtocol(McVoice_BitstreamReceived, McVoice_DeviceTrippedReceived , McVoice_DeviceBatteryEmptyReceived, debug);
+McVoiceProtocol mcvoiceProtocol = McVoiceProtocol("McVoice 433\0" , BitstreamReceived, McVoice_DeviceTrippedReceived , McVoice_DeviceBatteryEmptyReceived, debug);
 #endif
 
 #ifdef X10
-X10Protocol x10Protocol = X10Protocol(X10_BitstreamReceived, debug);
+X10Protocol x10Protocol = X10Protocol("X10 433\0",BitstreamReceived, debug);
 #endif
 
 #ifdef CARKEY
-CarKeyProtocol carkeyProtocol = CarKeyProtocol(CarKey_BitstreamReceived, debug);
+CarKeyProtocol carkeyProtocol = CarKeyProtocol("CarKey 433\0", BitstreamReceived, debug);
 #endif
 
 #ifdef SKYTRONIC
-SkytronicHomeLinkProtocol skytronicHomeLinkProtocol = SkytronicHomeLinkProtocol(SkytronicHomeLink_BitstreamReceived, debug);
+SkytronicHomeLinkProtocol skytronicHomeLinkProtocol = SkytronicHomeLinkProtocol("Skytronic 433\0" , BitstreamReceived, SkyTronic_DeviceTrippedReceived, debug);
 #endif
 
 #ifdef SKYTRONIC2
-Skytronic2Protocol skytronic2Protocol = Skytronic2Protocol(Skytronic2_BitstreamReceived, debug);
+Skytronic2Protocol skytronic2Protocol = Skytronic2Protocol("Skytronic2 433\0" , BitstreamReceived, debug);
 #endif
 
 #ifdef FRANELEC
-FranElecProtocol franelecProtocol = FranElecProtocol(FranElec_BitstreamReceived, FranElec_DeviceTrippedReceived , FranElec_DeviceBatteryEmptyReceived, debug);
+FranElecProtocol franelecProtocol = FranElecProtocol("FranElec 433\0", BitstreamReceived, FranElec_DeviceTrippedReceived , FranElec_DeviceBatteryEmptyReceived, debug);
 #endif
+
+#ifdef LACROSSE
+LaCrosseProtocol lacrosseProtocol = LaCrosseProtocol("LaCrosse 433\0" , BitstreamReceived, debug);
+#endif
+
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -195,87 +216,12 @@ void debug(const char *val)
 // --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-
-// --------------------------------------------------------------------------------------------------------------------------------------------------
-
-#ifdef RANEX
-void Ranex_BitstreamReceived(volatile short int bitbuffer[])
+void BitstreamReceived(const char *protocol, unsigned short length, volatile short int bitbuffer[])
 {
-  Serial.print("RanexBitstream:");
-  for (int idx=0; idx<12;idx++) Serial.print(bitbuffer[idx],DEC);
-}
-#endif
-
-#ifdef X10
-void X10_BitstreamReceived(volatile short int bitbuffer[])
-{
-  Serial.print("X10: ");
-  for (int idx=0; idx<8;idx++) Serial.print(bitbuffer[idx],DEC);
-  Serial.print(" ");
-  for (int idx=8; idx<16;idx++) Serial.print(bitbuffer[idx],DEC);
-  Serial.print(" ");
-  for (int idx=16; idx<24;idx++) Serial.print(bitbuffer[idx],DEC);
-  Serial.print(" ");
-  for (int idx=24; idx<32;idx++) Serial.print(bitbuffer[idx],DEC);
+  Serial.print(protocol);
+  for (int idx=0; idx<length;idx++) Serial.print(bitbuffer[idx],DEC);
   Serial.println("");
 }
-#endif
-
-#ifdef ELRO
-void Elro_BitstreamReceived(volatile short int bitbuffer[])
-{
-  Serial.println("ELRO");  
-  for (int idx=0; idx<24;idx++) Serial.print(bitbuffer[idx],DEC);
-}
-#endif
-
-#ifdef MCVOICE
-void McVoice_BitstreamReceived(volatile short int bitbuffer[])
-{
-  Serial.print("McVoice: ");  
-  for (int idx=0; idx<24;idx++) Serial.print(bitbuffer[idx],DEC);
-  Serial.println("");
-}
-#endif
-
-#ifdef SKYTRONIC
-void SkytronicHomeLink_BitstreamReceived(volatile short int bitbuffer[])
-{
-  Serial.print("SkytronicHomeLink: ");  
-  for (int idx=0; idx<10;idx++) Serial.print(bitbuffer[idx],DEC);
-  Serial.println("");
-}
-#endif
-
-#ifdef SKYTRONIC2
-void Skytronic2_BitstreamReceived(volatile short int bitbuffer[])
-{
-  Serial.print("Skytronic2: ");  
-  for (int idx=0; idx<34;idx++) Serial.print(bitbuffer[idx],DEC);
-  Serial.println("");
-}
-#endif
-
-
-#ifdef CARKEY
-void CarKey_BitstreamReceived(volatile short int bitbuffer[])
-{
-  Serial.print("CarKey: ");  
-  for (int idx=0; idx<61;idx++) Serial.print(bitbuffer[idx],DEC);
-  Serial.println("");
-}
-#endif
-
-#ifdef FRANELEC
-void FranElec_BitstreamReceived(volatile short int bitbuffer[])
-{
-  Serial.print("FranElec: ");  
-  for (int idx=0; idx<24;idx++) Serial.print(bitbuffer[idx],DEC);
-  Serial.println("");
-}
-#endif
-
-
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -285,9 +231,6 @@ void FranElec_BitstreamReceived(volatile short int bitbuffer[])
 // --------------------------------------------------------------------------------------------------------------------------------------------------
 // ISR
 // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
 
 // This Interrupt Service Routine will be called upon each change of data on DATAPIN.
 ISR(TIMER1_CAPT_vect)
@@ -358,7 +301,6 @@ ISR(TIMER1_OVF_vect)
         
         // Start receiving again
         TIMSK1=0; //Disable timer interrupt; Stop edge timer, stop overflow interrupt
-        Serial.println("sent complete");
         if (sendreceivestate==4)
         {
           AttachToRssiInterrupt();
@@ -368,8 +310,20 @@ ISR(TIMER1_OVF_vect)
       } 
     }
     sendpulsestate = !sendpulsestate;
+    unsigned int duration = sendpulses[sendposidx];
 
-    TCNT1 = (65535-sendpulses[sendposidx]) ;
+#ifdef ShowPulses
+    if (sendpulsestate)
+    {
+      Serial.print("<");
+    }
+    Serial.print(duration,DEC); 
+        if (sendpulsestate)
+    {
+          Serial.print(">");
+    }
+#endif    
+    TCNT1 = 65535-duration ;
 
     digitalWrite(TXPIN,sendpulsestate);
   }
@@ -438,13 +392,15 @@ void Start()
   franelecProtocol.Initialize();
 #endif  
 
+#ifdef LACROSSE
+  lacrosseProtocol.Initialize();
+#endif  
 
   AttachToRssiInterrupt();       
 }
 
 void Stop()
 {  
-  Serial.println("Detachinterrupt RSSI");
   if (sendreceivestate==1 || sendreceivestate==2 || sendreceivestate==3)
   {
     detachInterrupt(RSSIIRQNR);
@@ -466,11 +422,6 @@ void rssiPinTriggered(void)
 {
   cli();
   sendreceivestate = 2;
-  
-  detachInterrupt(RSSIIRQNR);
-  
-  //clear the ICES1 bit so next INT is on falling edge
-  TCCR1B&=(~(1<<ICES1));      
 
    // reset TCNT1
   TCNT1 = 0;
@@ -481,7 +432,14 @@ void rssiPinTriggered(void)
   //clear eventuele openstaande interrupts.
   TIFR1=0xff;
 
+  
+  //clear the ICES1 bit so next INT is on falling edge
+  TCCR1B&=(~(1<<ICES1));      
+
+
   prevTime = 0;
+
+  detachInterrupt(RSSIIRQNR);
   
   sei();
 }
@@ -495,13 +453,12 @@ void setup()
     Serial.begin(115200);
     
     receivedpulsesCircularBuffer = (volatile pulse * ) malloc ( ReceivedPulsesCircularBufferSize * sizeof(pulse) );
-    
     Start();
 }
 
 
 
-void send(unsigned int * pulses)
+void send(unsigned int * pulses, unsigned short nrpulses)
 {
     if (sendreceivestate==1 || sendreceivestate==2 || sendreceivestate==3 )
     {
@@ -519,13 +476,29 @@ void send(unsigned int * pulses)
    
     sendpulses = pulses;
     sendrepeatsleft = 5;
-    sendpulsecount = 12 * 4 + 2;
+    sendpulsecount = nrpulses; 
     sendposidx = 0;    
     sendpulsestate = HIGH;
 
     sendreceivestate = 4;
+
+    unsigned int duration = pulses[sendposidx]; 
+    
+#ifdef ShowPulses
+    if (sendpulsestate)
+    {
+      Serial.print("<");
+    }
+    Serial.print(duration,DEC); 
+        if (sendpulsestate)
+    {
+          Serial.print(">");
+    }
+#endif
+
+    
     // reset TCNT1
-    TCNT1 = 65535- pulses[sendposidx];
+    TCNT1 = ((unsigned int) 65535)- duration;
     digitalWrite(TXPIN, sendpulsestate);
   
     //Enable timer interrupt; start timer
@@ -559,11 +532,11 @@ void loop()
 #endif
 
 #ifdef X10
-    x10Decoder.DecodePulse(state , duration );
+    x10Protocol.DecodePulse(state , duration );
 #endif
 
 #ifdef CARKEY
-    carkeyDecoder.DecodePulse(state, duration );
+    carkeyProtocol.DecodePulse(state, duration );
 #endif
 
 #ifdef SKYTRONIC
@@ -578,6 +551,10 @@ void loop()
     franelecProtocol.DecodePulse(state , duration );
 #endif    
     
+#ifdef LACROSSE
+    lacrosseProtocol.DecodePulse(state , duration );
+#endif    
+
     if (++receivedpulsesCircularBuffer_readpos >= ReceivedPulsesCircularBufferSize) 
     {
       receivedpulsesCircularBuffer_readpos = 0;
@@ -587,14 +564,19 @@ void loop()
   if (Serial.available()>0)
   {
     int b = Serial.read();
-    Serial.print("Key received: ");
     Serial.println(b,DEC);
     if (b>=48 && b<=58 ) 
     {
       #ifdef RANEX
-      send( ranexProtocol.EncodeCommand(b-48 , HIGH) ) ;
-      send( ranexProtocol.EncodeCommand(b-48 , LOW) ) ;
+      send( ranexProtocol.EncodeCommand(b-48 , HIGH) , 12 * 4 + 2) ;
+      send( ranexProtocol.EncodeCommand(b-48 , LOW) , 12 * 4 + 2) ;
       #endif
+    }
+    if (b==97)
+    {
+      #ifdef SKYTRONIC
+      send( skytronicHomeLinkProtocol.EncodeCommand(0 , 3) , (14 * 2 + 2 + 8 ) * 2) ;
+      #endif 
     }
 
   }
