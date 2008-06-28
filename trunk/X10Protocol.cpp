@@ -28,13 +28,10 @@
 
 
 X10Protocol::X10Protocol(
+	char * id, 
 	void (*Bitstream)(const char * , unsigned short , volatile short int[]), 
-	void (*debug)(const char *) )
+	void (*debug)(const char *) )  : HeaderedProtocolBase(id, 32, 34 , Bitstream, debug)
 {
-	_ProtocolBitstream = Bitstream;
-	_debug = debug;
-
-	DecodedBitsBufferSize = 32;
 }
 
 void X10Protocol::DecodeBitstream()

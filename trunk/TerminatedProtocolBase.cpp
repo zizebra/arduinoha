@@ -1,6 +1,17 @@
 #include "TerminatedProtocolBase.h"
 #include "WConstants.h"
 
+TerminatedProtocolBase::TerminatedProtocolBase(
+		char * id, 
+		unsigned short decodedbitsbuffersize ,
+		unsigned short encodedbitsbuffersize ,
+		void (*Bitstream)(const char *, unsigned short , volatile short int[]), 
+		void (*debug)(const char *)
+) : ProtocolBase(id, decodedbitsbuffersize, encodedbitsbuffersize, Bitstream, debug)
+{
+}
+
+
 void TerminatedProtocolBase::StoreDecodedBit(short int bit)
 {
 	// Is the buffer full?

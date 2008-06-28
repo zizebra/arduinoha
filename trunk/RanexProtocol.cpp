@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "WConstants.h"
 
+
 enum PulseDuration 
 {
 	DURATION_UNKNOWN = 0,
@@ -19,26 +20,20 @@ enum PulseDuration
 #define	TerminatorDuration_Min 430
 #define	TerminatorDuration_Max 460
 
-RanexProtocol::DecodedBitsBufferSize 12;
-
 RanexProtocol::RanexProtocol(
+	char * id, 
 	void (*Bitstream)(const char *, unsigned short , volatile short int[]), 
-	void (*DeviceCommand)(unsigned short int &, bool &) ,
-	void (*debug)(const char *) )
+	void (*DeviceCommand)(char * , unsigned short int &, bool &) ,
+	void (*debug)(const char *) )  : TerminatedProtocolBase(id, 12, 12 * 4 + 2 , Bitstream, debug)
 {
-	_ProtocolBitstream = Bitstream;
 	_DeviceCommand = DeviceCommand;
-	_debug = debug;
-
-	DecodedBitsBufferSize = 12;
-	EncodedBitsBufferSize = 12 * 4 + 2;
 }
 
 void RanexProtocol::DecodeBitstream()
 {
 	unsigned short int device = (!DecodedBitsBuffer[1] * 1 ) + (!DecodedBitsBuffer[2] * 2) + (!DecodedBitsBuffer[3] * 4);
 	bool command = DecodedBitsBuffer[8];
-	if (_DeviceCommand!=0) _DeviceCommand(device, command);
+	if (_DeviceCommand!=0) _DeviceCommand(_id, device, command);
 }
 
 void RanexProtocol::EncodePulse(unsigned short int pulse)
@@ -85,7 +80,6 @@ void RanexProtocol::EncodeTerminator()
 unsigned int * RanexProtocol::EncodeCommand(unsigned short int device, bool command)
 {
 	EncodedBitsBuffer = (unsigned int *)calloc( EncodedBitsBufferSize , sizeof(unsigned int) );
-//	EncodedBitsBuffer = (unsigned int *)malloc( EncodedBitsBufferSize * sizeof(unsigned int) );
 	ResetEncodedBitsBuffer();
 
 	EncodeBit(0);
@@ -176,7 +170,7 @@ void RanexProtocol::DecodePulse(short int pulse,unsigned int duration)
           case DURATION_TERMINATOR :	    
             if (1==BitDecodeState && DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
             {
-		if (_ProtocolBitstream!=0) _ProtocolBitstream("Ranex\0" , DecodedBitsBufferSize , DecodedBitsBuffer);
+		if (_ProtocolBitstream!=0) _ProtocolBitstream( _id , DecodedBitsBufferSize , DecodedBitsBuffer);
 		DecodeBitstream();			
             } 
             BitDecodeState = 0;

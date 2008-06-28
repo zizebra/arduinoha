@@ -21,15 +21,12 @@ enum PulseDuration
 
 
 ElroProtocol::ElroProtocol(
+	char * id, 
 	void (*Bitstream)(const char * , unsigned short , volatile short int[]), 
-	void (*DeviceCommand)(unsigned short int &, bool &) ,
-	void (*debug)(const char *) )
+	void (*DeviceCommand)(char * , unsigned short int &, bool &) ,
+	void (*debug)(const char *) ) : TerminatedProtocolBase(id, 24, 26 , Bitstream, debug)
 {
-	_ProtocolBitstream = Bitstream;
 	_DeviceCommand = DeviceCommand;
-	_debug = debug;
-
-	DecodedBitsBufferSize = 24;
 }
 
 void ElroProtocol::DecodeBitstream()
@@ -42,7 +39,7 @@ void ElroProtocol::DecodeBitstream()
 					(DecodedBitsBuffer[15] * 8) + (DecodedBitsBuffer[17] * 16) ;
 
 	bool command = DecodedBitsBuffer[23];
-	if (_DeviceCommand!=0) _DeviceCommand(device, command);
+	if (_DeviceCommand!=0) _DeviceCommand(_id, device, command);
 }
 
 void ElroProtocol::DecodePulse(short int pulse, unsigned int duration)
@@ -104,7 +101,7 @@ void ElroProtocol::DecodePulse(short int pulse, unsigned int duration)
           case DURATION_TERMINATOR :
             if (1==BitDecodeState && DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
             {
-		if (_ProtocolBitstream!=0) _ProtocolBitstream("Elro\0" , DecodedBitsBufferSize, DecodedBitsBuffer);
+		if (_ProtocolBitstream!=0) _ProtocolBitstream(_id , DecodedBitsBufferSize, DecodedBitsBuffer);
 		DecodeBitstream();			
             } 
             BitDecodeState = 0;

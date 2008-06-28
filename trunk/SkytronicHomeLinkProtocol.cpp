@@ -41,24 +41,19 @@
 
 
 SkytronicHomeLinkProtocol::SkytronicHomeLinkProtocol(
+	char * id, 
 	void (*Bitstream)(const char * , unsigned short , volatile short int[]), 
-	void (*DeviceTripped)(unsigned short int &,unsigned short int &) ,
-	void (*debug)(const char *) )
+	void (*DeviceTripped)(char * , unsigned short int &,unsigned short int &) ,
+	void (*debug)(const char *) ) : TerminatedProtocolBase(id, 14, (14 * 2 + 2 + 8) * 2, Bitstream, debug)
 {
-	_ProtocolBitstream = Bitstream;
 	_DeviceTripped = DeviceTripped;
-	_debug = debug;
-	
-
-	DecodedBitsBufferSize = 14;
-	EncodedBitsBufferSize = (14 * 2 + 2 + 8) * 2;
 }
 
 void SkytronicHomeLinkProtocol::DecodeBitstream()
 {
 	unsigned short device = (DecodedBitsBuffer[0] * 1) + (DecodedBitsBuffer[1] * 2) + (DecodedBitsBuffer[2] * 4) + (DecodedBitsBuffer[3] * 8) + (DecodedBitsBuffer[4] * 16) + (DecodedBitsBuffer[5] * 32) ;
 	unsigned short house = (DecodedBitsBuffer[10] * 1) + (DecodedBitsBuffer[9] * 2) ;
-	if (_DeviceTripped!=0) _DeviceTripped(device, house);
+	if (_DeviceTripped!=0) _DeviceTripped(_id, device, house);
 }
 
 void SkytronicHomeLinkProtocol::DecodePulse(short int pulse, unsigned int duration)
@@ -136,7 +131,7 @@ void SkytronicHomeLinkProtocol::DecodePulse(short int pulse, unsigned int durati
 			{
 		            	if (DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
 		            	{
-					if (_ProtocolBitstream!=0) _ProtocolBitstream("Skylink\0",DecodedBitsBufferSize, DecodedBitsBuffer);
+					if (_ProtocolBitstream!=0) _ProtocolBitstream( _id ,DecodedBitsBufferSize, DecodedBitsBuffer);
 					DecodeBitstream();			
             		    	} 
 				BitDecodeState = 0;

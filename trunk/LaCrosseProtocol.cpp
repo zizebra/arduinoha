@@ -31,13 +31,10 @@ enum PulseDuration
 
 
 LaCrosseProtocol::LaCrosseProtocol(
+	char * id, 
 	void (*Bitstream)(const char *, unsigned short , volatile short int[]), 
-	void (*debug)(const char *) )
+	void (*debug)(const char *) ) : TerminatedProtocolBase(id, 24, 26 , Bitstream, debug)
 {
-	_ProtocolBitstream = Bitstream;
-	_debug = debug;
-
-	DecodedBitsBufferSize = 24;
 }
 
 void LaCrosseProtocol::DecodeBitstream()
@@ -108,7 +105,7 @@ void LaCrosseProtocol::DecodePulse(short int pulse, unsigned int duration)
           case DURATION_TERMINATOR :
             if (1==BitDecodeState && DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
             {
-		if (_ProtocolBitstream!=0) _ProtocolBitstream("LaCrosse\0" , DecodedBitsBufferSize , DecodedBitsBuffer);
+		if (_ProtocolBitstream!=0) _ProtocolBitstream(_id , DecodedBitsBufferSize , DecodedBitsBuffer);
 		DecodeBitstream();			
             } 
             BitDecodeState = 0;

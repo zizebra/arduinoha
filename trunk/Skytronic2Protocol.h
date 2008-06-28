@@ -6,6 +6,7 @@ class Skytronic2Protocol : public TerminatedProtocolBase {
 	public:
 		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
 		Skytronic2Protocol(
+			char * id, 
 			void (*Bitstream)(const char * , unsigned short, volatile short int[]), 
 			void (*debug)(const char *) );
 	private:

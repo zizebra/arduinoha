@@ -25,14 +25,10 @@ enum PulseDuration
 
 
 CarKeyDecoder::CarKeyDecoder(
+	char * id, 
 	void (*Bitstream)(const char * , unsigned short ,volatile short int[]), 
-	void (*debug)(const char *) )
+	void (*debug)(const char *) ) : TerminatedProtocolBase(id, 61, 0, Bitstream, debug)
 {
-	_ProtocolBitstream = Bitstream;
-	_debug = debug;
-
-
-	DecodedBitsBufferSize = 61;
 }
 
 void CarKeyDecoder::DecodeBitstream()
@@ -77,7 +73,7 @@ void CarKeyDecoder::DecodePulse(short int pulse, unsigned int duration)
 			case PULSEDURATION_TERMINATOR : 
 			        if (DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)    				
 				{
-					if (_ProtocolBitstream!=0) _ProtocolBitstream("CarKey\0", DecodedBitsBufferSize,DecodedBitsBuffer);
+					if (_ProtocolBitstream!=0) _ProtocolBitstream(_id, DecodedBitsBufferSize,DecodedBitsBuffer);
 					DecodeBitstream();
 				}
 

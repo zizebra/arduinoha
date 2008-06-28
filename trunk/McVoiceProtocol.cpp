@@ -31,18 +31,14 @@ enum PulseDuration
 
 
 McVoiceProtocol::McVoiceProtocol(
+	char * id, 
 	void (*Bitstream)(const char * , unsigned short , volatile short int[]), 
-	void (*DeviceTripped)(unsigned short int &) ,
-	void (*DeviceBatteryEmpty)(unsigned short int &),
-	void (*debug)(const char *) )
+	void (*DeviceTripped)(char * , unsigned short int &) ,
+	void (*DeviceBatteryEmpty)(char *, unsigned short int &),
+	void (*debug)(const char *) )  : TerminatedProtocolBase(id, 24, 26 , Bitstream, debug)
 {
-	_ProtocolBitstream = Bitstream;
 	_DeviceTripped = DeviceTripped;
 	_DeviceBatteryEmpty = DeviceBatteryEmpty;
-	_debug = debug;
-
-
-	DecodedBitsBufferSize = 24;
 }
 
 void McVoiceProtocol::DecodeBitstream()
@@ -55,8 +51,8 @@ void McVoiceProtocol::DecodeBitstream()
 
 	unsigned short int device = (!DecodedBitsBuffer[15] * 1) + (!DecodedBitsBuffer[13] * 2) + (!DecodedBitsBuffer[11] * 4) + (!DecodedBitsBuffer[9] * 8) + (!DecodedBitsBuffer[7] * 16)  + (!DecodedBitsBuffer[5] * 32) + (!DecodedBitsBuffer[3] * 64) + (!DecodedBitsBuffer[1] * 128) ;
 
-	if (_DeviceTripped!=0) _DeviceTripped(device);
-	if (_DeviceBatteryEmpty!=0 && BatteryEmpty)  _DeviceBatteryEmpty(device);
+	if (_DeviceTripped!=0) _DeviceTripped(_id, device);
+	if (_DeviceBatteryEmpty!=0 && BatteryEmpty)  _DeviceBatteryEmpty(_id, device);
 }
 
 void McVoiceProtocol::DecodePulse(short int pulse, unsigned int duration)
@@ -118,7 +114,7 @@ void McVoiceProtocol::DecodePulse(short int pulse, unsigned int duration)
           case DURATION_TERMINATOR :
             if (1==BitDecodeState && DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
             {
-		if (_ProtocolBitstream!=0) _ProtocolBitstream("McVoice\0" , DecodedBitsBufferSize, DecodedBitsBuffer);
+		if (_ProtocolBitstream!=0) _ProtocolBitstream( _id , DecodedBitsBufferSize, DecodedBitsBuffer);
 		DecodeBitstream();			
             } 
             BitDecodeState = 0;

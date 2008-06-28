@@ -6,15 +6,16 @@ class RanexProtocol : public TerminatedProtocolBase {
 	public:
 		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
 		RanexProtocol(
+			char * id, 
 			void (*Bitstream)(const char * , unsigned short, volatile short int[]), 
-			void (*DeviceCommand)(unsigned short int &, bool &),
+			void (*DeviceCommand)(char * , unsigned short int &, bool &),
 			void (*debug)(const char *) );
 		unsigned int * EncodeCommand(unsigned short int device, bool command);
 	private:
 		void EncodePulse(unsigned short int pulse);
 		void EncodeBit(unsigned short bit);
 		void EncodeTerminator();
-		void (*_DeviceCommand)(unsigned short int &, bool &);
+		void (*_DeviceCommand)(char * , unsigned short int &, bool &);
 	protected:
 		virtual void DecodeBitstream();
 };

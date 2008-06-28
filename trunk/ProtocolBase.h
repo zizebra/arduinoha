@@ -3,11 +3,18 @@
 
 class ProtocolBase {
 	public:
-		ProtocolBase();
+		ProtocolBase(
+			char * id, 
+			unsigned short decodedbitsbuffersize , 
+			unsigned short encodedbitsbuffersize ,
+			void (*Bitstream)(const char *, unsigned short , volatile short int[]), 
+			void (*debug)(const char *)
+		);
 		virtual void DecodePulse(short int ,unsigned int) = 0;
 		virtual void Initialize();
 	private:
 	protected:
+		char * _id;
 		void StoreEncodedPulse(unsigned int);
 		void (*_debug)(const char *);
 static unsigned short quantizeduration(unsigned int duration, unsigned short quant_unknown, 
