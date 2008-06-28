@@ -1,11 +1,11 @@
 #include <TerminatedProtocolBase.h>
-#ifndef CarKeyDecoder_h
-#define CarKeyDecoder_h
+#ifndef CarKeyProtocol_h
+#define CarKeyProtocol_h
 
-class CarKeyDecoder : public TerminatedProtocolBase {
+class CarKeyProtocol : public TerminatedProtocolBase {
 	public:
 		virtual void DecodePulse(short int pulse ,unsigned int duration) ;
-		CarKeyDecoder(
+		CarKeyProtocol(
 			char * id, 
 			void (*Bitstream)(const char * , unsigned short , volatile short int[]), 
 			void (*debug)(const char *) );

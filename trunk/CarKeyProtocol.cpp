@@ -1,4 +1,4 @@
-#include "CarKeyDecoder.h"
+#include "CarKeyProtocol.h"
 #include "WConstants.h"
 
 enum PulseDuration 
@@ -24,17 +24,17 @@ enum PulseDuration
 
 
 
-CarKeyDecoder::CarKeyDecoder(
+CarKeyProtocol::CarKeyProtocol(
 	char * id, 
 	void (*Bitstream)(const char * , unsigned short ,volatile short int[]), 
 	void (*debug)(const char *) ) : TerminatedProtocolBase(id, 61, 0, Bitstream, debug)
 {
 }
 
-void CarKeyDecoder::DecodeBitstream()
+void CarKeyProtocol::DecodeBitstream()
 {}
 
-void CarKeyDecoder::DecodePulse(short int pulse, unsigned int duration)
+void CarKeyProtocol::DecodePulse(short int pulse, unsigned int duration)
 {
 	int durationresult = quantizeduration( duration, PULSEDURATION_UNKNOWN , 
 			PULSEDURATION_SHORT , ShortPulseDuration_Min , ShortPulseDuration_Max,
