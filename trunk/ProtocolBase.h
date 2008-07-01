@@ -11,7 +11,6 @@ class ProtocolBase {
 			void (*debug)(const char *)
 		);
 		virtual void DecodePulse(short int ,unsigned int) = 0;
-		virtual void Initialize();
 	private:
 	protected:
 		char * _id;

@@ -8,6 +8,7 @@
 #define SKYTRONIC2
 #define FRANELEC
 #define LACROSSE
+#define UNKNOWN
 
 struct pulse {
 	unsigned int duration;
@@ -50,6 +51,10 @@ struct pulse {
 
 #ifdef LACROSSE
 #include <LaCrosseProtocol.h>
+#endif
+
+#ifdef UNKNOWN
+#include <UnknownProtocol.h>
 #endif
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -203,6 +208,9 @@ FranElecProtocol franelecProtocol = FranElecProtocol("FranElec 433\0", Bitstream
 LaCrosseProtocol lacrosseProtocol = LaCrosseProtocol("LaCrosse 433\0" , BitstreamReceived, debug);
 #endif
 
+#ifdef UNKNOWN
+UnknownProtocol unknownProtocol = UnknownProtocol("Unknown 433\0" , BitstreamReceived, debug);
+#endif
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -359,43 +367,6 @@ void AttachToRssiInterrupt()
 void Start()
 {
   InitializePins();
-
-#ifdef RANEX  
-  ranexProtocol.Initialize();
-#endif
-
-#ifdef ELRO
-  elroProtocol.Initialize();
-#endif 
-
-#ifdef MCVOICE
-  mcvoiceProtocol.Initialize();
-#endif
-
-#ifdef X10
-  x10Protocol.Initialize();
-#endif
-
-#ifdef CARKEY
-  carkeyProtocol.Initialize();
-#endif
-
-#ifdef SKYTRONIC
-  skytronicHomeLinkProtocol.Initialize();
-#endif  
-
-#ifdef SKYTRONIC2
-  skytronic2Protocol.Initialize();
-#endif  
-
-#ifdef FRANELEC
-  franelecProtocol.Initialize();
-#endif  
-
-#ifdef LACROSSE
-  lacrosseProtocol.Initialize();
-#endif  
-
   AttachToRssiInterrupt();       
 }
 
@@ -555,6 +526,10 @@ void loop()
     lacrosseProtocol.DecodePulse(state , duration );
 #endif    
 
+#ifdef UNKNOWN
+    unknownProtocol.DecodePulse(state , duration );
+#endif    
+
     if (++receivedpulsesCircularBuffer_readpos >= ReceivedPulsesCircularBufferSize) 
     {
       receivedpulsesCircularBuffer_readpos = 0;
@@ -565,7 +540,7 @@ void loop()
   {
     int b = Serial.read();
     Serial.println(b,DEC);
-    if (b>=48 && b<=58 ) 
+/*    if (b>=48 && b<=58 ) 
     {
       #ifdef RANEX
       send( ranexProtocol.EncodeCommand(b-48 , HIGH) , 12 * 4 + 2) ;
@@ -577,7 +552,7 @@ void loop()
       #ifdef SKYTRONIC
       send( skytronicHomeLinkProtocol.EncodeCommand(0 , 3) , (14 * 2 + 2 + 8 ) * 2) ;
       #endif 
-    }
+    }*/
 
   }
 

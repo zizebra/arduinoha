@@ -2,15 +2,15 @@
 #include <stdlib.h>
 #include "WConstants.h"
 
+// HS2262A-R4
 
-enum PulseDuration 
-{
-	DURATION_UNKNOWN = 0,
-	DURATION_SHORT = 1,
-	DURATION_LONG = 2 ,
-	DURATION_TERMINATOR = 3
-};
+// Define the different pulses
+#define	DURATION_UNKNOWN 0
+#define DURATION_SHORT 1
+#define	DURATION_LONG 2 
+#define DURATION_TERMINATOR 3
 
+// Define the different pulse timings
 #define	ShortPulseDuration_Min 5
 #define	ShortPulseDuration_Max 20
 
@@ -31,25 +31,19 @@ RanexProtocol::RanexProtocol(
 
 void RanexProtocol::DecodeBitstream()
 {
-	unsigned short int device = (!DecodedBitsBuffer[1] * 1 ) + (!DecodedBitsBuffer[2] * 2) + (!DecodedBitsBuffer[3] * 4);
+	unsigned short int device = (!DecodedBitsBuffer[1] ) + (!DecodedBitsBuffer[2] << 1) + (!DecodedBitsBuffer[3] << 2);
 	bool command = DecodedBitsBuffer[8];
 	if (_DeviceCommand!=0) _DeviceCommand(_id, device, command);
 }
 
 void RanexProtocol::EncodePulse(unsigned short int pulse)
 {
-	switch (pulse)
-	{
-		case DURATION_SHORT:
+	if (DURATION_SHORT==pulse) 
 			StoreEncodedPulse( 10 ); 
-			break;
-		case DURATION_LONG:
+	else if (DURATION_LONG==pulse)
 			StoreEncodedPulse( 47 ); 
-			break;
-		case DURATION_TERMINATOR:
+	else if (DURATION_TERMINATOR==pulse)
 			StoreEncodedPulse( 450 );
-			break;
-	}
 }
 
 void RanexProtocol::EncodeBit(unsigned short bit)
@@ -101,12 +95,13 @@ unsigned int * RanexProtocol::EncodeCommand(unsigned short int device, bool comm
 
 void RanexProtocol::DecodePulse(short int pulse,unsigned int duration)
 {
-    int durationresult = quantizeduration( duration, DURATION_UNKNOWN, 
-					DURATION_SHORT , ShortPulseDuration_Min, ShortPulseDuration_Max, 
-					DURATION_LONG , LongPulseDuration_Min, LongPulseDuration_Max, 
-					DURATION_TERMINATOR, TerminatorDuration_Min, TerminatorDuration_Max );
+    int durationresult = DURATION_UNKNOWN; 
+
     if (HIGH==pulse)
     { // een hoog signaal
+    	 durationresult = quantizeduration( duration, DURATION_UNKNOWN, 
+					DURATION_SHORT , ShortPulseDuration_Min, ShortPulseDuration_Max, 
+					DURATION_LONG , LongPulseDuration_Min, LongPulseDuration_Max);
        switch (durationresult)
        {
          case DURATION_SHORT:
@@ -136,6 +131,11 @@ void RanexProtocol::DecodePulse(short int pulse,unsigned int duration)
     }
     else
     { // curstate==LOW
+    	 durationresult = quantizeduration( duration, DURATION_UNKNOWN, 
+					DURATION_SHORT , ShortPulseDuration_Min, ShortPulseDuration_Max, 
+					DURATION_LONG , LongPulseDuration_Min, LongPulseDuration_Max, 
+					DURATION_TERMINATOR, TerminatorDuration_Min, TerminatorDuration_Max );
+
         switch (durationresult)
         {
           case DURATION_SHORT:
@@ -168,11 +168,7 @@ void RanexProtocol::DecodePulse(short int pulse,unsigned int duration)
 	    }
             break;  
           case DURATION_TERMINATOR :	    
-            if (1==BitDecodeState && DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
-            {
-		if (_ProtocolBitstream!=0) _ProtocolBitstream( _id , DecodedBitsBufferSize , DecodedBitsBuffer);
-		DecodeBitstream();			
-            } 
+            if (1==BitDecodeState) Terminator();
             BitDecodeState = 0;
 	    ResetDecodedBitsBuffer();
             break;

@@ -1,10 +1,9 @@
-#include <TerminatedProtocolBase.h>
+#include <ShortHighProtocolBase.h>
 #ifndef McVoiceProtocol_h
 #define McVoiceProtocol_h
 
-class McVoiceProtocol : public TerminatedProtocolBase {
+class McVoiceProtocol : public ShortHighProtocolBase {
 	public:
-		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
 		McVoiceProtocol(
 			char * id, 
 			void (*Bitstream)(const char * , unsigned short, volatile short int[]), 

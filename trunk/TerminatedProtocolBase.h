@@ -13,6 +13,8 @@ class TerminatedProtocolBase : public ProtocolBase {
 		);
 	private:
 	protected:
+		void Terminator();
+		virtual void DecodeBitstream() = 0;
 		virtual void StoreDecodedBit(short int bit) ;
 };
 

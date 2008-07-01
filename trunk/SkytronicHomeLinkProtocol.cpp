@@ -128,12 +128,8 @@ void SkytronicHomeLinkProtocol::DecodePulse(short int pulse, unsigned int durati
 				StoreDecodedBit(0);
 				BitDecodeState = 2;
 			} else if (durationresult==DURATION_TERMINATOR)
-			{
-		            	if (DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
-		            	{
-					if (_ProtocolBitstream!=0) _ProtocolBitstream( _id ,DecodedBitsBufferSize, DecodedBitsBuffer);
-					DecodeBitstream();			
-            		    	} 
+			{	
+				Terminator();
 				BitDecodeState = 0;
 				ResetDecodedBitsBuffer();
 			} else

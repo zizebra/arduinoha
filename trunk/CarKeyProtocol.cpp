@@ -71,12 +71,7 @@ void CarKeyProtocol::DecodePulse(short int pulse, unsigned int duration)
 				BitDecodeState = 0;			
 				break;
 			case PULSEDURATION_TERMINATOR : 
-			        if (DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)    				
-				{
-					if (_ProtocolBitstream!=0) _ProtocolBitstream(_id, DecodedBitsBufferSize,DecodedBitsBuffer);
-					DecodeBitstream();
-				}
-
+				Terminator();
 				ResetDecodedBitsBuffer();
 				BitDecodeState = 0;
 				break;

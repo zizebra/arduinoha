@@ -27,10 +27,7 @@ ProtocolBase::ProtocolBase(
 	EncodedBitsBufferSize = encodedbitsbuffersize;
 	_ProtocolBitstream = Bitstream;
 	_debug = debug;
-}
 
-void ProtocolBase::Initialize()
-{
 	DecodedBitsBuffer = (volatile short int *)calloc( DecodedBitsBufferSize , sizeof(short int) );
 	ResetDecodedBitsBuffer();
 	BitDecodeState = 0;

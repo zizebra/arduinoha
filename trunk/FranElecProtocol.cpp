@@ -12,31 +12,12 @@
 // Productcode: FRANELEC ANTI01
 // Chip:	M3D-95 / E0927
 
-
-
-enum PulseDuration 
-{
-	DURATION_UNKNOWN = 0 , 
-	DURATION_SHORT = 1 , 
-	DURATION_LONG = 2, 
-	DURATION_TERMINATOR = 3
-};
-
-#define	ShortPulseDuration_Min 17
-#define	ShortPulseDuration_Max 39
-
-#define	LongPulseDuration_Min 75
-#define	LongPulseDuration_Max 99
-
-#define	TerminatorDuration_Min 920
-#define	TerminatorDuration_Max 940
-
 FranElecProtocol::FranElecProtocol(
 	char * id, 
 	void (*Bitstream)(const char *, unsigned short , volatile short int[]), 
 	void (*DeviceTripped)(char * id, unsigned short int &) ,
 	void (*DeviceBatteryEmpty)(char * id, unsigned short int &),
-	void (*debug)(const char *) ) : TerminatedProtocolBase(id, 24, 26, Bitstream, debug)
+	void (*debug)(const char *) ) : PT2262ProtocolBase(id, Bitstream, debug, 17 , 39 , 75 , 99,  920,  940)
 {
 	_DeviceTripped = DeviceTripped;
 	_DeviceBatteryEmpty = DeviceBatteryEmpty;
@@ -55,77 +36,4 @@ void FranElecProtocol::DecodeBitstream()
 
 	if (_DeviceTripped!=0) _DeviceTripped(_id, device);
 	if (_DeviceBatteryEmpty!=0 && BatteryEmpty)  _DeviceBatteryEmpty(_id, device);
-}
-
-void FranElecProtocol::DecodePulse(short int pulse, unsigned int duration)
-{
-    int durationresult = quantizeduration( duration, DURATION_UNKNOWN, 
-					DURATION_SHORT , ShortPulseDuration_Min, ShortPulseDuration_Max, 
-					DURATION_LONG , LongPulseDuration_Min, LongPulseDuration_Max, 
-					DURATION_TERMINATOR, TerminatorDuration_Min, TerminatorDuration_Max );
-    if (HIGH==pulse)
-    { // een hoog signaal
-       switch (durationresult)
-       {
-         case DURATION_SHORT:
-           if (0==BitDecodeState) BitDecodeState=1;
-           else 
-	   {
-		BitDecodeState = 0;
-	   }
-           break;
-         case DURATION_LONG:
-           if (0==BitDecodeState) BitDecodeState=2;
-           else
-	   {
-		 BitDecodeState = 0;
-	   }
-           break;
-         default:
-	   BitDecodeState = 0;
-	   ResetDecodedBitsBuffer();
-           break;
-       }
-    }
-    else
-    { // curstate==LOW
-        switch (durationresult)
-        {
-          case DURATION_SHORT:
-            if (2==BitDecodeState) 
-            { // een 1 ontvangen
-	      StoreDecodedBit(1);
-              BitDecodeState = 0;
-            } else 
-            {
-	      ResetDecodedBitsBuffer();
-              BitDecodeState = 0;
-            }
-            break;
-          case DURATION_LONG:
-            if (1==BitDecodeState) 
-            { // "0"
-	      StoreDecodedBit(0);
-              BitDecodeState = 0;
-            } else 
-	    {
-		BitDecodeState = 0;
-		ResetDecodedBitsBuffer();
-	    }
-            break;  
-          case DURATION_TERMINATOR :
-            if (1==BitDecodeState && DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
-            {
-		if (_ProtocolBitstream!=0) _ProtocolBitstream(_id , DecodedBitsBufferSize , DecodedBitsBuffer);
-		DecodeBitstream();			
-            } 
-            BitDecodeState = 0;
-	    ResetDecodedBitsBuffer();
-            break;
-          default: 
-            BitDecodeState = 0;
-	    ResetDecodedBitsBuffer();
-            break;  
-        }
-    }
 }

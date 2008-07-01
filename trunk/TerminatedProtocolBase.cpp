@@ -30,4 +30,11 @@ void TerminatedProtocolBase::StoreDecodedBit(short int bit)
 }
 
 
-
+void TerminatedProtocolBase::Terminator()
+{
+	if (DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
+        {
+		if (_ProtocolBitstream!=0) _ProtocolBitstream( _id , DecodedBitsBufferSize, DecodedBitsBuffer);
+		DecodeBitstream();			
+        } 
+}

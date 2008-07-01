@@ -135,11 +135,7 @@ void Skytronic2Protocol::DecodePulse(short int pulse, unsigned int duration)
 	    }
             break;  
           case DURATION_TERMINATOR :
-            if (1==BitDecodeState && DecodedBitsBufferPosIdx+1==DecodedBitsBufferSize)
-            {
-		if (_ProtocolBitstream!=0) _ProtocolBitstream( _id ,DecodedBitsBufferSize,DecodedBitsBuffer);
-		DecodeBitstream();			
-            } 
+            if (1==BitDecodeState) Terminator();
             BitDecodeState = 0;
 	    ResetDecodedBitsBuffer();
             break;

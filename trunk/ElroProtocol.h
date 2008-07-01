@@ -1,10 +1,9 @@
-#include <TerminatedProtocolBase.h>
+#include <PT2262ProtocolBase.h>
 #ifndef ElroProtocol_h
 #define ElroProtocol_h
 
-class ElroProtocol : public TerminatedProtocolBase{
+class ElroProtocol : public PT2262ProtocolBase {
 	public:
-		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
 		ElroProtocol(
 			char * id, 
 			void (*Bitstream)(const char * , unsigned short , volatile short int[]), 

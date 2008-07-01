@@ -4,43 +4,43 @@
 // [  23]   93 [  68]   31 [  23]   93 [  68]   32 [  21]   95 [  21]   95 [  21]   95 [  66]   33 [  21]   95 [  21]   95 [  21]   95 [  21]   95 [  21]   95 [  21]   95 [  21]   95 [  21]   95 [  66]   33 [  66]   33 [  20]   97 [  19]   97 [  19]   97 [  19]   96 [  20]   96 [  20]   96 [  21]  969
 
 
-enum PulseDuration 
+/*enum PulseDuration 
 {
 	DURATION_UNKNOWN = 0 , 
 	DURATION_SHORT = 1 , 
 	DURATION_LONG = 2, 
 	DURATION_TERMINATOR = 3
-};
+};*/
 
-#define	ShortHighPulseDuration_Min 17
-#define	ShortHighPulseDuration_Max 25
+/*define	ShortHighPulseDuration_Min 17
+define	ShortHighPulseDuration_Max 25
 
-#define	ShortLowPulseDuration_Min 25
-#define	ShortLowPulseDuration_Max 35
+define	ShortLowPulseDuration_Min 25
+define	ShortLowPulseDuration_Max 35
 
-#define	LongHighPulseDuration_Min 60
-#define	LongHighPulseDuration_Max 70
+define	LongHighPulseDuration_Min 60
+define	LongHighPulseDuration_Max 70
 
-#define	LongLowPulseDuration_Min 90
-#define	LongLowPulseDuration_Max 100
+define	LongLowPulseDuration_Min 90
+define	LongLowPulseDuration_Max 100
 
 
-#define	TerminatorDuration_Min 950
-#define	TerminatorDuration_Max 990
-
+define	TerminatorDuration_Min 950
+define	TerminatorDuration_Max 990
+*/
 
 
 LaCrosseProtocol::LaCrosseProtocol(
 	char * id, 
 	void (*Bitstream)(const char *, unsigned short , volatile short int[]), 
-	void (*debug)(const char *) ) : TerminatedProtocolBase(id, 24, 26 , Bitstream, debug)
+	void (*debug)(const char *) ) : ShortHighProtocolBase(id, Bitstream, debug, 17 , 25 , 60 , 70 , 25 , 35 , 90 , 100 , 950, 990)
 {
 }
 
 void LaCrosseProtocol::DecodeBitstream()
 {}
 
-void LaCrosseProtocol::DecodePulse(short int pulse, unsigned int duration)
+/*void LaCrosseProtocol::DecodePulse(short int pulse, unsigned int duration)
 {
     int durationresult = DURATION_UNKNOWN;
     if (HIGH==pulse)
@@ -117,4 +117,4 @@ void LaCrosseProtocol::DecodePulse(short int pulse, unsigned int duration)
             break;  
         }
     }
-}
+}*/
