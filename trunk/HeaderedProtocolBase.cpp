@@ -5,9 +5,8 @@ HeaderedProtocolBase::HeaderedProtocolBase(
 		char * id, 
 		unsigned short decodedbitsbuffersize , 
 		unsigned short encodedbitsbuffersize ,
-		void (*Bitstream)(const char *, unsigned short , volatile short int[]), 
-		void (*debug)(const char *)
-) : ProtocolBase(id, decodedbitsbuffersize, encodedbitsbuffersize, Bitstream, debug)
+		void (*Bitstream)(const char *, unsigned short , volatile short int[])
+) : ProtocolBase(id, decodedbitsbuffersize, encodedbitsbuffersize, Bitstream)
 {
 }
 
@@ -23,7 +22,7 @@ void HeaderedProtocolBase::StoreDecodedBit(short int bit)
 		DecodeBitstream();
 
 		BitDecodeState = 0;
-		ResetDecodedBitsBuffer();
+		DecodedBitsBufferPosIdx = 0;
 	}
 
 	DecodedBitsBufferPosIdx++;

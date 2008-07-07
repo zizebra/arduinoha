@@ -15,8 +15,8 @@ McVoiceProtocol::McVoiceProtocol(
 	char * id, 
 	void (*Bitstream)(const char * , unsigned short , volatile short int[]), 
 	void (*DeviceTripped)(char * , unsigned short int &) ,
-	void (*DeviceBatteryEmpty)(char *, unsigned short int &),
-	void (*debug)(const char *) )  : ShortHighProtocolBase( id, Bitstream, debug , 11 , 16 , 53, 85 , 28 , 32 , 71 ,76 , 640 , 720 )
+	void (*DeviceBatteryEmpty)(char *, unsigned short int &)
+)  : ShortHighProtocolBase( id, 24, 26 , Bitstream, 11 , 16 , 53, 85 , 28 , 32 , 71 ,76 , 640 , 720 , -1 , 0 , 1 , -1 )
 {
 	_DeviceTripped = DeviceTripped;
 	_DeviceBatteryEmpty = DeviceBatteryEmpty;

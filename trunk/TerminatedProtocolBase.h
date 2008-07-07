@@ -8,8 +8,7 @@ class TerminatedProtocolBase : public ProtocolBase {
 			char * id, 
 			unsigned short decodedbitsbuffersize , 
 			unsigned short encodedbitsbuffersize ,
-			void (*Bitstream)(const char *, unsigned short , volatile short int[]), 
-			void (*debug)(const char *)
+			void (*Bitstream)(const char *, unsigned short , volatile short int[])
 		);
 	private:
 	protected:

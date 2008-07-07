@@ -8,8 +8,7 @@ class X10Protocol : public HeaderedProtocolBase{
 		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
 		X10Protocol(
 			char * id, 
-			void (*Bitstream)(const char * , unsigned short, volatile short int[]), 
-			void (*debug)(const char *) );
+			void (*Bitstream)(const char * , unsigned short, volatile short int[]) );
 	private:
 		unsigned int LeaderCarrier_Min, LeaderCarrier_Max;
 		unsigned int LeaderSilence_Min, LeaderSilence_Max;

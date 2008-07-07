@@ -1,21 +1,17 @@
-#include <TerminatedProtocolBase.h>
+#include <PT2262ProtocolBase.h>
 #ifndef RanexProtocol_h
 #define RanexProtocol_h
 
-class RanexProtocol : public TerminatedProtocolBase {
+class RanexProtocol : public PT2262ProtocolBase {
 	public:
-		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
 		RanexProtocol(
 			char * id, 
 			void (*Bitstream)(const char * , unsigned short, volatile short int[]), 
-			void (*DeviceCommand)(char * , unsigned short int &, bool &),
-			void (*debug)(const char *) );
+			void (*DeviceCommand)(char * , unsigned short int &, bool &) );
 		unsigned int * EncodeCommand(unsigned short int device, bool command);
 	private:
-		void EncodePulse(unsigned short int pulse);
-		void EncodeBit(unsigned short bit);
-		void EncodeTerminator();
 		void (*_DeviceCommand)(char * , unsigned short int &, bool &);
+		void EncodeBit(unsigned short bit);
 	protected:
 		virtual void DecodeBitstream();
 };

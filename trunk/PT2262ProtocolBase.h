@@ -8,7 +8,6 @@ class PT2262ProtocolBase : public TerminatedProtocolBase {
 		PT2262ProtocolBase(
 			char * id, 
 			void (*Bitstream)(const char * , unsigned short, volatile short int[]), 
-			void (*debug)(const char *) ,
 			unsigned int , unsigned int ,
 			unsigned int , unsigned int ,
 			unsigned int , unsigned int );

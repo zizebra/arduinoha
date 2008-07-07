@@ -8,15 +8,11 @@ class SkytronicHomeLinkProtocol : public TerminatedProtocolBase {
 		SkytronicHomeLinkProtocol(
 			char * id, 
 			void (*Bitstream)(const char * , unsigned short, volatile short int[]), 
-			void (*DeviceTripped)(char * , unsigned short int &, unsigned short int &),
-			void (*debug)(const char *) ) ;
+			void (*DeviceTripped)(char * , unsigned short int &, unsigned short int &) ) ;
 		unsigned int * EncodeCommand(unsigned short int , unsigned short int );
 	private:
 		void (*_DeviceTripped)(char * , unsigned short int &, unsigned short int &);
-		void EncodePulse(unsigned short int pulse);
 		void EncodeBit(unsigned short bit);
-		void EncodeTerminator();
-		void EncodeCarrier();
 	protected:
 		virtual void DecodeBitstream();
 };

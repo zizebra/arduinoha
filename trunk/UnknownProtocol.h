@@ -1,15 +1,17 @@
-#include <TerminatedProtocolBase.h>
+#include <ShortHighProtocolBase.h>
 #ifndef UnknownProtocol_h
 #define UnknownProtocol_h
 
-class UnknownProtocol : public TerminatedProtocolBase {
+class UnknownProtocol : public ShortHighProtocolBase {
 	public:
-		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
 		UnknownProtocol(
 			char * id, 
-			void (*Bitstream)(const char * , unsigned short, volatile short int[]), 
-			void (*debug)(const char *) );
+			void (*Bitstream)(const char * , unsigned short, volatile short int[]),
+			void (*TempReceived)(char * , float &) ,
+			void (*HygroReceived)(char * , short &));
 	private:
+		void (*_TempReceived)(char * , float &);
+		void (*_HygroReceived)(char * , short &);
 	protected:
 		virtual void DecodeBitstream();
 };

@@ -7,13 +7,15 @@ class ShortHighProtocolBase : public TerminatedProtocolBase {
 		virtual void DecodePulse(short int pulse , unsigned int duration ) ;
 		ShortHighProtocolBase(
 			char * id, 
+			unsigned short ,
+			unsigned short ,
 			void (*Bitstream)(const char * , unsigned short, volatile short int[]), 
-			void (*debug)(const char *) ,
 			unsigned int , unsigned int ,
 			unsigned int , unsigned int ,
 			unsigned int , unsigned int ,
 			unsigned int , unsigned int ,
-			unsigned int , unsigned int );
+			unsigned int , unsigned int ,
+			short ,  short ,  short ,  short);
 	private:
 	protected:
 		virtual void DecodeBitstream() = 0;
@@ -31,6 +33,11 @@ class ShortHighProtocolBase : public TerminatedProtocolBase {
 
 		unsigned int TerminatorDuration_Min ;
 		unsigned int TerminatorDuration_Max ;
+
+		short ShortShort ;
+		short ShortLong ;
+		short LongShort ;
+		short LongLong ;
 };
 
 #endif

@@ -1,102 +1,63 @@
 #include "UnknownProtocol.h"
 #include "WConstants.h"
 
+//La Crosse TX3, La Crosse TX4
+// hygro TX4 
+// 000101011100100110001000111000001000111111 
+// 000101011100100110001001000000001001000000 
+// 000101011100100110101001001000001001001001 
+// 000101011100100110101010010000001010010011 
+// 000101011100100110101010100000001010100101 
+// 000101011100100110101010100000001010100101 
+// 000101011100100110101100010000001100010100
+// 000101011100100110101101000000001101000010 
+// 000101011100100110101110000000001110000011 = 70%
+// 000101011100100110001110010000001110010101 = 72%
+// 000101011100100110101110011000001110011110 = 73%
+// 000101011100100110001110100000001110100111 = 74%
+// 000101011100100110101110101000001110101000 = 75%
+
 //[   7]   50 [  91]   56 [  88]   60 [  84]   62 [  35]   62 [  83]   63 [  33]   63 [  83]   64 [  81]   65 [  81]   64 [  81]   66 [  79]   67 [  30]   67 [  78]   68 [  78]   67 [  78]   69 [  77]   69 [  27]   69 [  28]   69 [  28]   67 [  78]   69 [  28]   69 [  27]   70 [  26]   70 [  76]   70 [  76]   70 [  26]   71 [  75]   70 [  76]   71 [  25]   71 [  26]   70 [  26]   71 [  75]   71 [  25]   71 [  26]   72 [  24]   71 [  75]   71 [  75]   72 [  24]   72 [  74]   72 [  74]   70 [  75]   73 [  24]   72 [  74] 1753 
 
+//[   3]   53 [  91]   55 [  90]   57 [  87]   59 [  37]   60 [  86]   59 [  37]   60 [  85]   61 [  85]   61 [  84]   62 [  84]   61 [  84]   62 [  34]   63 [  83]   62 [  83]   63 [  83]   63 [  82]   64 [  33]   64 [  32]   64 [  33]   64 [  81]   65 [  32]   64 [  32]   65 [  32]   64 [  81]   65 [  81]   65 [  31]   65 [  32]   65 [  80]   66 [  31]   66 [  79]   67 [  30]   66 [  79]   67 [  30]   67 [  29]   67 [  30]   67 [  78]   68 [  78]   68 [  28]   68 [  28]   69 [  77]   69 [  77]   69 [  27]   69 [  77] 1752 
 
-#define DURATION_UNKNOWN 0 
-#define DURATION_SHORT 1
-#define DURATION_LONG  2 
-#define DURATION_TERMINATOR 3
+// [   3]   55 [  88]   59 [  86]   60 [  85]   62 [  34]   62 [  83]   63 [  33]   63 [  83]   63 [  82]   64 [  81]   64 [  81]   65 [  81]   65 [  31]   65 [  80]   66 [  80]   66 [  79]   66 [  80]   66 [  30]   67 [  29]   67 [  30]   66 [  79]   67 [  30]   67 [  29]   67 [  29]   67 [  79]   67 [  29]   68 [  29]   66 [  79]   67 [  79]   67 [  29]   67 [  78]   68 [  29]   67 [  78]   68 [  29]   67 [  29]   68 [  29]   67 [  78]   68 [  29]   67 [  29]   67 [  79]   67 [  29]   68 [  77]   68 [  78]   68 [  77] 1751 
 
-#define	ShortHighPulseDuration_Min 24
-#define	ShortHighPulseDuration_Max 28
-
-#define	LongHighPulseDuration_Min 73
-#define	LongHighPulseDuration_Max 80
-
-#define	LongLowPulseDuration_Min 67
-#define	LongLowPulseDuration_Max 73
-
-
-#define	TerminatorDuration_Min 1700
-#define	TerminatorDuration_Max 7000
-
-
+// [  81]   64 [  81]   65 [  81]   65 [  80]   65 [  31]   66 [  80]   65 [  31]   66 [  80]   66 [  79]   66 [  79]   67 [  79]   67 [  78]   67 [  30]   67 [  78]   67 [  79]   67 [  78]   68 [  78]   67 [  29]   68 [  29]   67 [  29]   67 [  78]   68 [  29]   67 [  29]   68 [  29]   67 [  78]   68 [  29]   67 [  29]   67 [  79]   67 [  78]   68 [  28]   68 [  78]   68 [  28]   68 [  78]   68 [  28]   68 [  29]   68 [  28]   68 [  78]   67 [  29]   68 [  29]   67 [  78]   68 [  29]   67 [  78]   68 [  78]   68 [  77] 4561
 
 UnknownProtocol::UnknownProtocol(
 	char * id, 
-	void (*Bitstream)(const char *, unsigned short , volatile short int[]), 
-	void (*debug)(const char *) ) : TerminatedProtocolBase(id, 34, 36 , Bitstream, debug)
+	void (*Bitstream)(const char *, unsigned short , volatile short int[]),
+	void (*TempReceived)(char * , float &) ,
+	void (*HygroReceived)(char * , short &) 
+) : ShortHighProtocolBase(id, 42, 43 , Bitstream , 19, 40 ,   69 , 95 ,   0,0,   48 , 77 ,   1700, 32000, -1 , 1 , -1 , 0)
 {
+	_TempReceived = TempReceived;
+	_HygroReceived = HygroReceived;
 }
 
 void UnknownProtocol::DecodeBitstream()
-{}
-
-void UnknownProtocol::DecodePulse(short int pulse, unsigned int duration)
 {
-    int durationresult = DURATION_UNKNOWN;
-    if (HIGH==pulse)
-    { // een hoog signaal
-    	durationresult = quantizeduration( duration, DURATION_UNKNOWN, 
-					DURATION_SHORT , ShortHighPulseDuration_Min, ShortHighPulseDuration_Max, 
-					DURATION_LONG , LongHighPulseDuration_Min, LongHighPulseDuration_Max );
+  float temp = 0;
+  if (DecodedBitsBuffer[30] != 0 ) temp += 0.1f;
+  if (DecodedBitsBuffer[29] != 0 ) temp += 0.2f;
+  if (DecodedBitsBuffer[28] != 0 ) temp += 0.4f;
+  if (DecodedBitsBuffer[27] != 0 ) temp += 0.8f;
+  if (DecodedBitsBuffer[26] != 0 ) temp += 1;
+  if (DecodedBitsBuffer[25] != 0 ) temp += 2;
+  if (DecodedBitsBuffer[24] != 0 ) temp += 4;
+  if (DecodedBitsBuffer[23] != 0 ) temp += 8;
 
-       switch (durationresult)
-       {
-         case DURATION_SHORT:
-           if (0==BitDecodeState) BitDecodeState=1;
-           else 
-	   {
-		BitDecodeState = 0;
-	   }
-           break;
-         case DURATION_LONG:
-           if (0==BitDecodeState) BitDecodeState=2;
-           else
-	   {
-		 BitDecodeState = 0;
-	   }
-           break;
-         default:
-	   BitDecodeState = 0;
-	   ResetDecodedBitsBuffer();
-           break;
-       }
-    }
-    else
-    { // curstate==LOW
-    	durationresult = quantizeduration( duration, DURATION_UNKNOWN, 					
-					DURATION_LONG , LongLowPulseDuration_Min, LongLowPulseDuration_Max, 
-					DURATION_TERMINATOR, TerminatorDuration_Min, TerminatorDuration_Max );
+  if (DecodedBitsBuffer[19] != 0 ) temp += 30;
+  if (DecodedBitsBuffer[20] != 0 ) temp += 0; //?
+  if (DecodedBitsBuffer[21] != 0 ) temp += 20;
+  if (DecodedBitsBuffer[22] != 0 ) temp += 10;
 
-        switch (durationresult)
-        {
-          case DURATION_LONG:
-            if (1==BitDecodeState) 
-            { // "0"
-	      StoreDecodedBit(0);
-              BitDecodeState = 0;
-            } else  if (2==BitDecodeState) 
-            { // een 1 ontvangen
-	      StoreDecodedBit(1);
-              BitDecodeState = 0;
-            } else 
-	    {
-		BitDecodeState = 0;
-		ResetDecodedBitsBuffer();
-	    }
-            break;  
-          case DURATION_TERMINATOR :
-            if (1==BitDecodeState) Terminator();
-            BitDecodeState = 0;
-	    ResetDecodedBitsBuffer();
-            break;
-          default: 
-            BitDecodeState = 0;
-	    ResetDecodedBitsBuffer();
-            break;  
-        }
-    }
-}
+  short device = 0;
+  if (DecodedBitsBuffer[12] != 0 ) device += 4;
+  if (DecodedBitsBuffer[13] != 0 ) device += 2;
+  if (DecodedBitsBuffer[14] != 0 ) device += 1;
+  temp -= 10;
+// hygro = +50; //%
+  if (_TempReceived!=0) _TempReceived(_id, temp);
+  // if (_HygroReceived!=0) _HygroReceived(_id, hygro);}

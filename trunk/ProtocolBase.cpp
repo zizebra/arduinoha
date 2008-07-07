@@ -19,23 +19,16 @@ ProtocolBase::ProtocolBase(
 	char * id, 
 	unsigned short decodedbitsbuffersize , 
 	unsigned short encodedbitsbuffersize ,
-	void (*Bitstream)(const char *, unsigned short , volatile short int[]), 
-	void (*debug)(const char *))
+	void (*Bitstream)(const char *, unsigned short , volatile short int[]) )
 {
 	_id = id;
 	DecodedBitsBufferSize = decodedbitsbuffersize;
 	EncodedBitsBufferSize = encodedbitsbuffersize;
 	_ProtocolBitstream = Bitstream;
-	_debug = debug;
 
 	DecodedBitsBuffer = (volatile short int *)calloc( DecodedBitsBufferSize , sizeof(short int) );
-	ResetDecodedBitsBuffer();
-	BitDecodeState = 0;
-}
-
-void ProtocolBase::ResetDecodedBitsBuffer()
-{
 	DecodedBitsBufferPosIdx = 0;
+	BitDecodeState = 0;
 }
 
 void ProtocolBase::ResetEncodedBitsBuffer()

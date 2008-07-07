@@ -1,7 +1,7 @@
 #include "ShortHighProtocolBase.h"
 #include "WConstants.h"
+//#include "HardwareSerial.h"
 
-//
 
 enum PulseDuration 
 {
@@ -12,14 +12,17 @@ enum PulseDuration
 };
 
 ShortHighProtocolBase::ShortHighProtocolBase(
-	char * id, 
+	char * id,
+	unsigned short decodedbitsbuffersize ,
+	unsigned short encodedbitsbuffersize ,
 	void (*Bitstream)(const char *, unsigned short , volatile short int[]), 
-	void (*debug)(const char *) ,
 	unsigned int _ShortHighPulseDuration_Min, unsigned int _ShortHighPulseDuration_Max,
 	unsigned int _LongHighPulseDuration_Min, unsigned int _LongHighPulseDuration_Max,
 	unsigned int _ShortLowPulseDuration_Min, unsigned int _ShortLowPulseDuration_Max,
 	unsigned int _LongLowPulseDuration_Min, unsigned int _LongLowPulseDuration_Max,
-	unsigned int _TerminatorDuration_Min , unsigned int _TerminatorDuration_Max ) : TerminatedProtocolBase(id, 24, 26, Bitstream, debug)
+	unsigned int _TerminatorDuration_Min , unsigned int _TerminatorDuration_Max,
+	short _ShortShort, short _ShortLong, short _LongShort, short _LongLong
+) : TerminatedProtocolBase(id, decodedbitsbuffersize , encodedbitsbuffersize , Bitstream)
 {
 	ShortHighPulseDuration_Min = _ShortHighPulseDuration_Min;
 	ShortHighPulseDuration_Max = _ShortHighPulseDuration_Max;
@@ -35,18 +38,20 @@ ShortHighProtocolBase::ShortHighProtocolBase(
 
 	TerminatorDuration_Min = _TerminatorDuration_Min;
 	TerminatorDuration_Max = _TerminatorDuration_Max;
+
+	ShortShort = _ShortShort; ShortLong = _ShortLong; LongShort = _LongShort; LongLong = _LongLong;
 }
 
 
 void ShortHighProtocolBase::DecodePulse(short int pulse, unsigned int duration)
 {
     unsigned int durationresult = DURATION_UNKNOWN ; 
+
     if (HIGH==pulse)
     { // een hoog signaal
 	durationresult = quantizeduration( duration, DURATION_UNKNOWN, 
 					DURATION_SHORT , ShortHighPulseDuration_Min, ShortHighPulseDuration_Max, 
-					DURATION_LONG , LongHighPulseDuration_Min, LongHighPulseDuration_Max, 
-					DURATION_TERMINATOR, TerminatorDuration_Min, TerminatorDuration_Max );
+					DURATION_LONG , LongHighPulseDuration_Min, LongHighPulseDuration_Max);
        switch (durationresult)
        {
          case DURATION_SHORT:
@@ -70,15 +75,15 @@ void ShortHighProtocolBase::DecodePulse(short int pulse, unsigned int duration)
         switch (durationresult)
         {
           case DURATION_SHORT:
-            if (2==BitDecodeState) StoreDecodedBit(1); else DecodedBitsBufferPosIdx = 0;
+            if (2==BitDecodeState) StoreDecodedBit(LongShort); else if (1==BitDecodeState) StoreDecodedBit(ShortShort); else DecodedBitsBufferPosIdx = 0;
             BitDecodeState = 0;
             break;
           case DURATION_LONG:
-            if (1==BitDecodeState) StoreDecodedBit(0); else DecodedBitsBufferPosIdx = 0;
+            if (1==BitDecodeState) StoreDecodedBit(ShortLong); else if (2==BitDecodeState) StoreDecodedBit(LongLong); else DecodedBitsBufferPosIdx = 0;
             BitDecodeState = 0;
             break;  
           case DURATION_TERMINATOR :
-            if (1==BitDecodeState) Terminator();
+            if (1==BitDecodeState || 2==BitDecodeState) Terminator();
             BitDecodeState = 0;
 	    DecodedBitsBufferPosIdx = 0;
             break;

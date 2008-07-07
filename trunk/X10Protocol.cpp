@@ -29,8 +29,7 @@
 
 X10Protocol::X10Protocol(
 	char * id, 
-	void (*Bitstream)(const char * , unsigned short , volatile short int[]), 
-	void (*debug)(const char *) )  : HeaderedProtocolBase(id, 32, 34 , Bitstream, debug)
+	void (*Bitstream)(const char * , unsigned short , volatile short int[]) )  : HeaderedProtocolBase(id, 32, 34 , Bitstream )
 {
 }
 
@@ -66,13 +65,13 @@ void X10Protocol::DecodePulse(short int pulse, unsigned int duration)
 					PULSEDURATION_LEADERCARRIER , LeaderCarrier_Min , LeaderCarrier_Max );
 			if (durationresult==PULSEDURATION_LEADERCARRIER) 
 			{
-				ResetDecodedBitsBuffer();
+				DecodedBitsBufferPosIdx = 0;
 				BitDecodeState = 1;
 			}
 			else
 			{
 				BitDecodeState = 0;
-				ResetDecodedBitsBuffer();
+				DecodedBitsBufferPosIdx = 0;
 			}
 			break;
 		case 2 :
@@ -92,7 +91,7 @@ void X10Protocol::DecodePulse(short int pulse, unsigned int duration)
 				StoreDecodedBit(1);
 			} else
 			{
-				ResetDecodedBitsBuffer();
+				DecodedBitsBufferPosIdx = 0;
 				BitDecodeState = 0;
 			}
 			
@@ -108,7 +107,7 @@ void X10Protocol::DecodePulse(short int pulse, unsigned int duration)
 				
 				BitDecodeState = 0;
 			}
-			ResetDecodedBitsBuffer();
+			DecodedBitsBufferPosIdx = 0;
 			break;
 	}
     }
@@ -121,20 +120,20 @@ void X10Protocol::DecodePulse(short int pulse, unsigned int duration)
 					PULSEDURATION_LEADERSILENCE , LeaderSilence_Min , LeaderSilence_Max );
 			if (durationresult==PULSEDURATION_LEADERSILENCE) 
 			{
-				ResetDecodedBitsBuffer();
+				DecodedBitsBufferPosIdx = 0;
 				BitDecodeState = 2;
 			}
 			else
 			{
 				BitDecodeState = 0;
-				ResetDecodedBitsBuffer();
+				DecodedBitsBufferPosIdx = 0;
 			}
 			break;
 		case 3 :
 			dur = dur + duration;
 			break;
 		default :
-			ResetDecodedBitsBuffer();
+			DecodedBitsBufferPosIdx = 0;
 			BitDecodeState = 0;
         }
     }

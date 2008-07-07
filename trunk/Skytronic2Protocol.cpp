@@ -59,8 +59,7 @@ enum PulseDuration
 
 Skytronic2Protocol::Skytronic2Protocol(
 	char * id, 
-	void (*Bitstream)(const char * , unsigned short , volatile short int[]), 
-	void (*debug)(const char *) )  : TerminatedProtocolBase(id, 34, 36 , Bitstream, debug)
+	void (*Bitstream)(const char * , unsigned short , volatile short int[]) )  : TerminatedProtocolBase(id, 34, 36 , Bitstream)
 {
 }
 
@@ -93,7 +92,7 @@ void Skytronic2Protocol::DecodePulse(short int pulse, unsigned int duration)
            break;
          default:
 	   BitDecodeState = 0;
-	   ResetDecodedBitsBuffer();
+	   DecodedBitsBufferPosIdx = 0;
            break;
        }
     }
@@ -118,7 +117,7 @@ void Skytronic2Protocol::DecodePulse(short int pulse, unsigned int duration)
               BitDecodeState = 0;
  	    } else
             {
-	      ResetDecodedBitsBuffer();
+	      DecodedBitsBufferPosIdx = 0;
               BitDecodeState = 0;
             }
             break;
@@ -131,17 +130,17 @@ void Skytronic2Protocol::DecodePulse(short int pulse, unsigned int duration)
             } else 
 	    {
 		BitDecodeState = 0;
-		ResetDecodedBitsBuffer();
+		DecodedBitsBufferPosIdx = 0;
 	    }
             break;  
           case DURATION_TERMINATOR :
             if (1==BitDecodeState) Terminator();
             BitDecodeState = 0;
-	    ResetDecodedBitsBuffer();
+	    DecodedBitsBufferPosIdx = 0;
             break;
           default: 
             BitDecodeState = 0;
-	    ResetDecodedBitsBuffer();
+	    DecodedBitsBufferPosIdx = 0;
             break;  
         }
     }
