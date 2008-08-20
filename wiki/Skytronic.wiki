@@ -7,7 +7,6 @@ It exists out of 68 pulses.
 
 It seems that the pulses are constructed by mixing two pulses, as the high-pulses seem to shrink further in the burst (28 downto 22). Also the low pulses expand (35 -> 39).
 
-
 [  28]   35 [  28]   35 [  28]   36 [  27]   36 [  27]   66 [  27]   37 [  27]   36 
 [  26]   68 [  26]   66 [  26]   39 [  25]   37 [  25]   69 [  25]   38 [  24]   71 
 [  23]   38 [  25]   69 [  24]   68 [  25]   38 [  25]   39 [  25]   70 [  23]   38 
@@ -19,3 +18,18 @@ It seems that the pulses are constructed by mixing two pulses, as the high-pulse
 [  21]   40 [  23]   72 [  22]   39 [  23]   73 [  21]   40 [  23]   71 [  22]   40 
 [  23]   72 [  21]   40 [  23]   72 [  22]   39 [  24]   71 [  22]  642 
 Manchester 68 93 3 5261 
+
+Short Long Short Short equal to an encoded 1 bit
+Short Short Short Long equal to an encoded 0 bit
+
+#define	ShortHighPulseDuration_Min 22
+#define	ShortHighPulseDuration_Max 36
+
+#define	ShortLowPulseDuration_Min 29
+#define	ShortLowPulseDuration_Max 42
+
+#define LongLowPulseDuration_Min 59
+#define	LongLowPulseDuration_Max 72
+
+#define	TerminatorDuration_Min 630
+#define	TerminatorDuration_Max 720
