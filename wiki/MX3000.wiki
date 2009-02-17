@@ -7,6 +7,9 @@ Eventually i decived that it would be just too much work and not stable enough a
 I bought a few crystals of Ebay. Desoldered the originally mounted crystal. Pried open the casing of the remote. Isolated the new crystal. Soldered the connection. And voila.
 
 I will finish this text soon and also place some pictures.
+http://arduinoha.googlecode.com/files/P2120003.JPG
+http://arduinoha.googlecode.com/files/P2120002.JPG
+http://arduinoha.googlecode.com/files/P2120001.JPG
 
 = Details =
 
